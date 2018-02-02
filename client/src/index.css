@@ -1,0 +1,47 @@
+html {
+  overflow-y: scroll;
+}
+
+body {
+  background-color: #f0f2f5;
+}
+
+.test {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  border-bottom-width: 1px;
+}
+
+#root {
+  height: 100%;
+}
+
+.icon {
+  margin-right: 6px;
+  width: 1em; 
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent; 
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px; 
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.18);
+  border-radius: 4px; 
+}
+
+::-webkit-scrollbar-corner {
+  background-color: transparent; 
+}

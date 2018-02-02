@@ -1,0 +1,101 @@
+const router = require('koa-router')()
+const User = require('../models/user')
+const base = require('../models/base')
+
+router.post('/login', async ctx => {
+  const { userName, password } = ctx.request.body;
+
+  try {
+    const user = await User.findByName(userName);
+    if (!user) {
+      // throw new Error('用户不存在！')
+      ctx.throw(423, '用户不存在！')
+    }
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      ctx.throw(423, '用户名或密码错误！')
+    }
+    const token = base.signToken(user);
+
+    ctx.body = {
+      code: 200,
+      message: '登录成功！',
+      token: token
+    }
+  } catch (err) {
+    ctx.throw(err)
+  }
+})
+
+router.post('/register', async ctx => {
+  const { userName, password } = ctx.request.body;
+
+  let user = new User({
+    user_name: userName,
+    password: password
+  })
+  let result = await user.save();
+  ctx.body = {
+    code: 200,
+    message: '注册成功！'
+  }
+})
+
+router.get('/info', async ctx => {
+  // TODO:是否需要每次查询后更新app_secret
+  // token: base.signToke(user)
+  const user = await base.checkToken(ctx, User, true);
+
+  ctx.body = {
+    code: 200,
+    message: '获取用户信息成功！',
+    data: user,
+  };
+})
+
+router.put('/info', async ctx => {
+  try {
+    const user = ctx.request.body;
+    await User.updateOne({ name: user.user_name }, user);
+
+    ctx.body = {
+      code: 200,
+      message: '修改用户信息成功!'
+    }
+  } catch(err) {
+    ctx.throw(err);
+  }
+})
+
+// router.post('/message', async ctx => {
+//   const { receiverName, message } = ctx.request.body;
+//
+//   try {
+//     await User.addMessage(receiverName, message);
+//
+//     ctx.body = {
+//       code: 200,
+//       message: '发送成功',
+//     }
+//   } catch (err) {
+//     ctx.throw(err)
+//   }
+// })
+
+router.put('/message', async ctx => {
+  const { messageId } = ctx.request.body;
+  const userId = ctx.state.user._id;
+
+  try {
+    await User.setMessageSeen(userId, messageId);
+
+    ctx.body = {
+      code: 200,
+      message: '已阅',
+    }
+  } catch (err) {
+    ctx.throw(err)
+  }
+})
+
+module.exports = router
