@@ -1,6 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { Main, LabelImg, OperationLayer, Point } from './layout';
+import { getImgPos } from 'utils/index';
 
 class LabelSpace extends React.Component {
 
@@ -55,10 +56,10 @@ class LabelSpace extends React.Component {
       mouseDownHandler,
       mouseMoveHandler,
       mouseUpHandler,
-      imgPos,
       imgArray,
       currentWidth
     } = labelStore;
+    const imgPos = getImgPos();
 
     return (
       <Main>

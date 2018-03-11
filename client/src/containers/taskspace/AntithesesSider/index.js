@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { inject, observer } from 'mobx-react';
-import { Button, Alert } from 'antd';
+import { Button, Alert, notification } from 'antd';
 import {
   Main,
   Title,
@@ -22,6 +22,17 @@ const AntithesesSider = ({ labelStore }) => {
     nextHandler,
     error,
   } = labelStore;
+
+  const tempSave = () => {
+    labelStore.tempSaveHandler().then(() => {
+      if (!labelStore.error) {
+        notification.success({
+          message: '暂存成功',
+          description: '下次可以从当前进度开始标注啦',
+        });
+      }
+    })
+  };
 
   return (
     <Main>
@@ -47,16 +58,16 @@ const AntithesesSider = ({ labelStore }) => {
                 }
               </AvatarArea>
               <TipArea labelStore={labelStore} />
+              { error && <Alert message={error} type="error" /> }
               <Button
                 type="primary"
                 onClick={nextHandler}
                 style={{ marginTop: 15, marginBottom: 10, width: '100%' }}
               >{current === 2 ? '完成标注' : '下一步'}</Button>
-              { error && <Alert message={error} type="error" /> }
               {
                 labelData.length > 0
                   && <Button
-                       onClick={nextHandler}
+                       onClick={tempSave}
                        style={{ marginTop: 15, marginBottom: 10, width: '100%' }}
                        children="暂存"
                      />

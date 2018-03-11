@@ -41,7 +41,6 @@ const Action = styled.div`
 
 const Status = styled.div`
   color: rgb(139, 195, 74);
-  width: 70px;
   font-size: 36px;
 `;
 

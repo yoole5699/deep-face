@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { Icon, Button } from 'antd';
+import { getImgPos } from 'utils/index';
 
 const Main = styled.div`
   width: 66%;
@@ -26,18 +27,27 @@ const StyledButton = styled(Button)`
   margin-right: 20px;
 `;
 
-const LabelResult = ({ labelStore: { nextHandler, imgArray, imgPos }, _id }) => (
-  <Main>
-    <Text>提交成功<StyledIcon type="check" /></Text>
-    <div>
-      <StyledButton type="primary">
-        <Link to={`/task/${_id}?type=profile`}>回到图片列表</Link>
-      </StyledButton>
-      <StyledButton onClick={nextHandler}>
-        {imgArray.length !== imgPos + 1 ? '标注下一张' : '查看任务完成情况'}
-      </StyledButton>
-    </div>
-  </Main>
-)
+const LabelResult = ({ labelStore: { nextHandler, imgArray }, _id, history }) => {
+  const imgPos = getImgPos();
+  const isLabelOver = imgArray.length === imgPos + 1;
+  const jumpClickHandler = () => {
+    nextHandler();
+    history.push(isLabelOver ? `/task/${_id}?type=detail` : `/task/${_id}/label?imgPos=${imgPos + 1}`);
+  }
+
+  return (
+    <Main>
+      <Text>提交成功<StyledIcon type="check" /></Text>
+      <div>
+        <StyledButton type="primary">
+          <Link to={`/task/${_id}?type=profile`}>回到图片列表</Link>
+        </StyledButton>
+        <StyledButton onClick={jumpClickHandler}>
+          {isLabelOver ? '查看任务完成情况' : '标注下一张'}
+        </StyledButton>
+      </div>
+    </Main>
+  )
+}
 
 export default observer(LabelResult);

@@ -31,13 +31,17 @@ router.get('/label', async ctx => {
 
   ctx.body = {
     code: 200,
-    data: labelData || [],
+    data: {
+      currentWidth: labelItem && labelItem.current_width || 500,
+      dataSet: labelData || [],
+    },
   }
 })
 
 router.get('/:_id', async ctx => {
   const { _id } = ctx.params;
   let task = {};
+  let fulfilledImgArray = [];
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     ctx.body = {
       code: 200,
@@ -50,25 +54,30 @@ router.get('/:_id', async ctx => {
     task = await Task.findById(_id);
   } else {
     task = await SubTask.findById(_id).populate({ path: 'p' });
+    fulfilledImgArray = await Label.findBySubTaskId(task.id);
   }
 
   ctx.body = {
     code: 200,
-    data: task.toObject(),
+    data: {
+      ...task.toObject(),
+      fulfilledImgArray,
+    },
   }
 })
 
 router.post('/', async ctx => {
   let task = await uploadFile(ctx);
+  let taskItem;
 
   if (task) {
-    let taskItem = new Task(task);
+    taskItem = new Task(task);
     await taskItem.save();
   }
 
   ctx.body = {
     code: 200,
-    data: taskItem,
+    data: taskItem.toObject(),
   };
 });
 

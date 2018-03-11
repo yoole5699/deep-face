@@ -1,5 +1,12 @@
-const mongoose = require('mongoose')
-const { Schema } = mongoose
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const {
+  UN_START,
+  PENDING,
+  WAITING,
+  REJECTED,
+  RESOLVED,
+} = require('../utils/const');
 
 const LabelSchema = new Schema({
   t: {
@@ -13,6 +20,13 @@ const LabelSchema = new Schema({
     type: String,
     required: true,
     alias: 'img_name',
+  },
+
+  // 标注图标注时的宽度
+  w: {
+    type: Number,
+    default: 500,
+    alias: 'current_width',
   },
 
   // 标注数据为[{x,y,1:{x,y,},canvas},type]
@@ -37,15 +51,37 @@ LabelSchema.statics.findByName = async function(taskId, imgName){
   return label;
 }
 
-LabelSchema.statics.updateLabelItem = async function(body) {
-  await this.findOneAndUpdate({ t: body.task_id, n: body.img_name, }, { t: body.task_id, n: body.img_name, d: body.data, status: body.status }, { upsert: true })
+LabelSchema.statics.findBySubTaskId = async function(taskId) {
+  const label = await this.find({
+    t: taskId,
+    s: { $in: [ WAITING, RESOLVED ]}
+  });
+
+  return label.map(item => item.img_name);
 }
+
+LabelSchema.statics.updateLabelItem = async function(body) {
+  await this.findOneAndUpdate(
+    { t: body.task_id, n: body.img_name },
+    {
+      t: body.task_id,
+      n: body.img_name,
+      w: body.current_width || 500,
+      d: body.data,
+      s: body.status
+    },
+    { upsert: true }
+  );
+};
 
 if (!LabelSchema.options.toObject) LabelSchema.options.toObject = {};
 LabelSchema.options.toObject.transform = function (doc, ret, options) {
   return {
     _id: ret._id,
-    data: ret.data,
+    data: {
+      currentWidth: ret.current_width,
+      dataSet: ret.data
+    },
   }
 }
 

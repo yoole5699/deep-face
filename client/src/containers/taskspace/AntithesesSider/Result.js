@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { Title } from './layout';
 import { EllipsisTextBase } from 'components/common';
-
+import { getImgPos } from 'utils/index';
 const ImgName = EllipsisTextBase.extend`
   padding: 20px;
   color: rgb(187, 187, 187);
@@ -22,12 +22,11 @@ const Intro = styled.p`
   text-align: center;
 `;
 
-const Result = ({ labelStore: { imgArray, imgPos, task, } }) => {
+const Result = ({ labelStore: { imgArray, task, } }) => {
+  const imgPos = getImgPos();
   const hasLabeledImgNum = imgPos + 1;
   const unFinishedImgNum = imgArray.length - hasLabeledImgNum;
   const hasImgUnLabeled = unFinishedImgNum > 0;
-  const nextImgPath = imgArray[imgPos + 1].src;
-  const nextImgName = nextImgPath.substr(task.imgFolderPath.length + 2);
 
   const intro = (
     <Intro>
@@ -38,6 +37,9 @@ const Result = ({ labelStore: { imgArray, imgPos, task, } }) => {
   )
 
   if (hasImgUnLabeled) {
+    const nextImgPath = imgArray[imgPos + 1].src;
+    const nextImgName = nextImgPath.substr(task.imgFolderPath.length + 2);
+
     return (
       <Fragment>
         <Title>下一张图片</Title>

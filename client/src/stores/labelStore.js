@@ -1,11 +1,13 @@
-import { extendObservable, action, reaction } from 'mobx';
+import { extendObservable, action, reaction, toJS } from 'mobx';
 import taskStore from './taskStore';
 import agent from 'utils/agent';
 import { TASK_STATUS } from 'utils/const';
+import { getImgPos } from 'utils/index';
 
 const getTaskObj = (store) => {
   const { imgFolderPath, _id  } = store.task;
-  const imgFullpath = store.imgArray[store.imgPos].src;
+  const imgPos = getImgPos();
+  const imgFullpath = store.imgArray[imgPos].src;
   const imgName = imgFullpath.substr(imgFolderPath.length + 2);
 
   return {
@@ -31,7 +33,6 @@ class LabelStore {
       currentWidth: 500,
 
       imgArray: [],
-      imgPos: 0,
       task: undefined,
       error: undefined,
     });
@@ -57,7 +58,6 @@ class LabelStore {
   resetTask = action(() => {
     this.resetLabelData();
     this.isLoading = true;
-    this.imgPos = 0;
   })
 
   resetStore = action(() => {
@@ -82,6 +82,7 @@ class LabelStore {
     const beforeCurrentWidth = this.currentWidth;
     this.currentWidth -= 50;
     const zoomInRatio = this.currentWidth / beforeCurrentWidth;
+
     this.labelData.replace(
       this.labelData.map(item => ({
         x: item.x * zoomInRatio,
@@ -97,6 +98,7 @@ class LabelStore {
     const beforeCurrentWidth = this.currentWidth;
     this.currentWidth += 50;
     const zoomOutRatio = this.currentWidth / beforeCurrentWidth;
+
     this.labelData.replace(
       this.labelData.map(item => ({
         x: item.x * zoomOutRatio,
@@ -190,27 +192,31 @@ class LabelStore {
 
   nextHandler = action(() => {
     this.error = undefined;
-    if (this.current === 0) {
-      if (this.labelData.length > 0) {
-        this.currentRect = 0;
-      } else {
-        this.error = '请至少画出一个框';
-      }
-    }
+    switch (this.current) {
+      case 0:
+        if (this.labelData.length > 0) {
+          this.currentRect = 0;
+        } else {
+          this.error = '请至少画出一个框';
+        }
+        break;
 
-    if (this.current === 1) {
-      this.labelData.forEach((item, index) => {
-        item.p.length < 28 && (this.error = `第${index + 1}张图未达到标注要求`);
-      })
-    }
+      case 1:
+        this.labelData.forEach((item, index) => {
+          item.p.length < 28 && (this.error = `第${index + 1}个框未达到标注要求`);
+        });
+        break;
 
-    if (this.current === 2) {
-      this.saveHandler(TASK_STATUS.WAITING_REVIEW);
-    }
+      case 2:
+        this.saveHandler(TASK_STATUS.WAITING_REVIEW);
+        break;
 
-    if (this.current === 3) {
-      this.resetLabelData();
-      this.imgPos++;
+      case 3:
+        this.resetLabelData();
+        return ;
+
+      default:
+        break;
     }
 
     if (!this.error) {
@@ -265,25 +271,33 @@ class LabelStore {
     return this.asyncAction(
       agent.Label.one(taskObj)
         .then(action(({ data }) => {
-          this.labelData = data;
+          this.labelData = data.dataSet;
+          this.currentWidth = data.currentWidth;
           this.currentRect = this.labelData.length;
         }))
     )
   })
 
-  saveHandler = action((status) => {
+  saveHandler = action(status => {
     const taskObj = getTaskObj(this);
 
     return this.asyncAction(
-      agent.Label.update({ task_id: taskObj._id, img_name: taskObj.imgName, data: this.labelData, status })
-        .catch(action(({ message }) => {
-          this.error = message
-        }))
-    )
-  })
+      agent.Label.update({
+        task_id: taskObj._id,
+        img_name: taskObj.imgName,
+        current_width: this.currentWidth,
+        data: toJS(this.labelData),
+        status
+      }).catch(
+        action(({ message }) => {
+          this.error = message;
+        })
+      )
+    );
+  });
 
   tempSaveHandler = action(() => {
-    this.saveHandler(TASK_STATUS.TEMP_SAVE);
+    return this.saveHandler(TASK_STATUS.TEMP_SAVE);
   })
 }
 

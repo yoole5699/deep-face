@@ -61,16 +61,15 @@ class CommonStore {
         .then(action(({ data }) => {
           this.pubTasks.concat(data);
         }))
-    )
+    );
   })
 
   uploadTask = action((formData) => {
-    this.asyncAction(
-      agent.Common.upload(formData)
-        .then(action(({ data }) => {
-          taskStore.origin_task.set(data._id, data);
-        }))
-    );
+    return agent.Common.upload(formData)
+      .then(action(({ data }) => {
+        taskStore.origin_task.set(data._id, data);
+        return data;
+      }));
   })
 }
 

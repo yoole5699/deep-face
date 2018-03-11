@@ -15,12 +15,13 @@ const TaskProfile = ({
   imgFolderPath,
   imgArray,
   unFulfilledImgNum,
+  fulfilledImgArray,
   money,
   expireTime,
   specifiedExecutor,
 
   labelStore,
-  userStore: { userName }
+  userStore: { currentUser }
 }) => (
   <Fragment>
     <Meta type="profile">
@@ -37,7 +38,9 @@ const TaskProfile = ({
       type === 'profile'
         ? (
             <ImgPicker
-              dataSource={imgArray.map(item => `/${imgFolderPath}/${item}`)}
+              imgArray={imgArray}
+              imgFolderPath={imgFolderPath}
+              fulfilledImgArray={fulfilledImgArray || []}
               labelStore={labelStore}
             />
           )
@@ -52,16 +55,22 @@ const TaskProfile = ({
         type === 'profile'
           ? (
               <Button
-                disabled={unFulfilledImgNum === 0 || labelStore.imgArray.length === 0 || (specifiedExecutor !== userName && specifiedExecutor !== '全部')}
+                disabled={unFulfilledImgNum === 0 || labelStore.imgArray.length === 0 || (specifiedExecutor !== currentUser.userName && specifiedExecutor !== '全部')}
                 size="large"
                 type="primary"
               >
-                <Link to={`/task/${_id}/label`}>开始标注</Link>
+                <Link to={`/task/${_id}/label?imgPos=0`}>开始标注</Link>
               </Button>
             )
           : (
-              <Button size="large" type="primary" disabled={specifiedExecutor !== userName && specifiedExecutor === '全部'}>
-                  <Link to={`/task/${_id}?type=profile`}>选取图片进行标注</Link>
+              <Button
+                size="large"
+                type="primary"
+                disabled={
+                  specifiedExecutor !== currentUser.userName && specifiedExecutor === '全部'
+                }
+              >
+                <Link to={`/task/${_id}?type=profile`}>选取图片进行标注</Link>
               </Button>
             )
       }

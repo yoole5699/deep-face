@@ -26,11 +26,8 @@ class CreateTask extends React.Component {
         Object.keys(values).forEach(item => formData.append(item, values[item]));
 
         const { uploadTask } = this.props.commonStore;
-        uploadTask(formData).then(() => {
-          const { tempTask } = this.props.commonStore;
-          if (tempTask) {
-            this.props.history.push(`/task/${tempTask._id}?type=dispatch`)
-          }
+        uploadTask(formData).then(( data ) => {
+          data && this.props.history.push(`/task/${data._id}?type=dispatch`)
         });
       }
     });

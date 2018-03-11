@@ -3,6 +3,7 @@ import { Spin } from 'antd';
 import { inject, observer } from 'mobx-react';
 import { Main } from 'components/user/Layout';
 import { LabelSpace, ButtonArea, LabelResult } from 'components/taskspace';
+import { getImgPos } from 'utils/index';
 
 class EditingCard extends React.Component {
   componentDidMount() {
@@ -36,18 +37,18 @@ class EditingCard extends React.Component {
   }
 
   render() {
-    const { labelStore, _id } = this.props;
+    const { labelStore, match: { _id }, history } = this.props;
     const {
       task,
       current,
       imgArray,
-      imgPos,
       isLoading,
       resetLabelData,
       undoHandler,
       zoomInImgScale,
       zoomOutImgScale,
     } = labelStore;
+    const imgPos = getImgPos();
     const isTaskReady = task && imgArray[imgPos].src;
 
     return (
@@ -62,7 +63,7 @@ class EditingCard extends React.Component {
           </h2>
             {
               current === 3
-                ? (<LabelResult labelStore={labelStore} _id={_id} />)
+                ? (<LabelResult labelStore={labelStore} _id={_id} history={history} />)
                 : isTaskReady
                     && (
                          <Fragment>

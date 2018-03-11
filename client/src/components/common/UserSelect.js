@@ -41,6 +41,7 @@ class UserSelect extends React.Component {
       data: [],
       fetching: false,
     });
+    this.props.onChange(value);
   }
 
   render() {
@@ -48,16 +49,18 @@ class UserSelect extends React.Component {
 
     return (
       <Select
-        mode="combobox"
+        showSearch
+        // mode="combobox"
         value={value}
         placeholder="请输入要指定执行的用户名(任意用户请输入全部)"
-        notFoundContent={fetching ? <Spin size="small" /> : null}
-        filterOption={false}
+        optionFilterProp="children"
+        notFoundContent={fetching ? <Spin size="small" /> : "未找到相关用户"}
+        // filterOption={false}
         onSearch={this.fetchUser}
         onSelect={this.handleSelect}
       >
         {data.map(item => <Option key={item.value}>{item.text}</Option>)}
-        <Option key="all">全部</Option>
+        <Option key="all" value="all">全部</Option>
       </Select>
     )
   }

@@ -17,8 +17,8 @@ const TaskListCard = (({
   imgNum,
   money,
   expireTime,
-  finishedStatus,
-  parentTaskId
+  unFulfilledImgNum,
+  _id
 }) => (
   <Layout>
     <Avatar src={`/${imgFolderPath}/${imgArray[0]}`} alt="封面"/>
@@ -36,9 +36,9 @@ const TaskListCard = (({
     </Meta>
     <Action>
       <h4>标注进度</h4>
-      <Status>{finishedStatus}</Status>
+      <Status>{Math.round((imgArray.length - unFulfilledImgNum) / imgArray.length * 100) + '%'}</Status>
       <Button type="primary" size="large">
-        <Link to={`/task/${parentTaskId}`}>继续任务</Link>
+        <Link to={`/task/${_id}?type=profile`}>继续任务</Link>
       </Button>
     </Action>
   </Layout>

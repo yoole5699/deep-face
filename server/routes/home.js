@@ -27,6 +27,7 @@ router.get('mytasks', async ctx => {
     for (var i = 0; i < taskList.length; i++) {
       const _id = taskList[i]._id;
       const imgNum = taskList[i].imgArray.length;
+      console.log(taskList[i], '---taskList[i]---');
       taskList[i].pendingTaskNum = await SubTask.getPendingTaskNum(_id, imgNum);
       taskList[i].fulfilledTaskNum = await SubTask.getFulfilledTaskNum(_id);
       taskList[i].allTaskNum = await SubTask.getAllTaskNum(_id);

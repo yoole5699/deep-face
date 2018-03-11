@@ -11,14 +11,20 @@ const Layout = styled.div`
   overflow-y: scroll;
 `;
 
-const Avatar = styled(Checkbox)`
+const PureAvatar = styled.img`
   margin: 0 10px 10px 0 !important;
 
   width: 110px;
   height: 120px;
+`;
 
+const Avatar = PureAvatar.withComponent(Checkbox).extend`
   background-image: ${(props) => `url(${props.src})`};
   background-repeat: round;
+`;
+
+const WaitingAvatar = Avatar.extend`
+  border: 1px solid rgb(139, 195, 74);
 `;
 
 const RightText = styled.div`
@@ -29,34 +35,39 @@ const RightText = styled.div`
 
 class ImgPicker extends React.Component {
 
-  componentWillMount() {
+  componentWillUnMount() {
     this.props.labelStore.resetStore();
   }
 
   render() {
-    const { dataSource, labelStore } = this.props;
+    const { imgArray, imgFolderPath, fulfilledImgArray, labelStore } = this.props;
 
     return (
       <Fragment>
         <Checkbox
-          dataSource={dataSource}
-          indeterminate={labelStore.imgArray.length !== dataSource.length && labelStore.imgArray.length > 0}
-          checked={labelStore.imgArray.length === dataSource.length}
+          dataSource={imgArray}
+          indeterminate={labelStore.imgArray.length !== imgArray.length && labelStore.imgArray.length > 0}
+          checked={labelStore.imgArray.length === imgArray.length}
           onChange={labelStore.checkAllImg}
         >全选</Checkbox>
         <Layout>
             {
-              dataSource.map((item, index) => (
-                <Avatar
-                  key={index}
-                  src={item}
-                  checked={labelStore.imgArray.includes(item)}
-                  onChange={labelStore.checkImg}
-                />
-              ))
+              imgArray.map((item, index) => {
+                const Com = fulfilledImgArray.includes(item) ? WaitingAvatar : Avatar;
+                const imgFullpath = `/${imgFolderPath}/${item}`;
+
+                return (
+                  <Com
+                    key={index}
+                    src={imgFullpath}
+                    checked={labelStore.imgArray.includes(imgFullpath)}
+                    onChange={labelStore.checkImg}
+                  />
+                )
+              })
             }
         </Layout>
-        <RightText>选中： {labelStore.imgArray.length}/{dataSource.length}</RightText>
+        <RightText>选中： {labelStore.imgArray.length}/{imgArray.length}</RightText>
       </Fragment>
     )
   }
@@ -66,7 +77,7 @@ const ImgListBlock = ({ dataSource }) => (
   <Layout>
       {
         dataSource.map((item, index) => (
-          <Avatar
+          <PureAvatar
             key={index}
             src={item}
           />

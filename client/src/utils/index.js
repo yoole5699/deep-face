@@ -28,11 +28,20 @@ const firstLetterUpperCase = (item) => item.replace(/^\S/g, (letter) => letter.t
 
 const transferDateToString = (data) => new Date(data).toLocaleDateString();
 
+const getImgPos = () => {
+  const reg = /^\?imgPos=([\d]*)/;
+  const regRes = reg.exec(window.location.search);
+  const imgPos = regRes && regRes[1];
+
+  return parseInt(imgPos, 10) || 0;
+}
+
 export {
   getCookieObj,
   getCookieByKey,
   setCookieByKey,
   removeCookieByKey,
   firstLetterUpperCase,
-  transferDateToString
+  transferDateToString,
+  getImgPos
 }
