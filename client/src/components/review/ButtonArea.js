@@ -8,7 +8,7 @@ const Layout = styled.div`
   margin-top: 10px;
 
   display: flex;
-  justify-content: space-between;
+  flex-direction: row-reverse;
 `;
 
 const LargeButton = styled(Button)`
@@ -22,10 +22,6 @@ const ButtonArea = ({
   zoomOutHandler
 }) => (
   <Layout>
-    <Group>
-      <LargeButton size="large" icon="reload" onClick={resetHandler} />
-      <LargeButton size="large" icon="close" onClick={undoHandler} />
-    </Group>
     <Group>
       <LargeButton size="large" icon="shrink" onClick={zoomInHandler} />
       <LargeButton size="large" icon="arrows-alt" onClick={zoomOutHandler} />

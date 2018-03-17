@@ -1,14 +1,6 @@
 const mongoose = require('mongoose')
 
 const SubTaskSchema = new mongoose.Schema({
-
-  u: {
-    type: Number,
-    default: 1,
-    required: true,
-    alias: 'un_fulfilled_img_num',
-  },
-
   t: {
     type: String,
     required: true,
@@ -80,22 +72,22 @@ SubTaskSchema.statics.findMyOwn = async function(
 };
 
 
-SubTaskSchema.statics.getPendingTaskNum = async function (parentTaskId, imgNum) {
-  const num = await this.count({ p: parentTaskId, u: { $gt: 0 } });
-  console.log(num, '---getPendingTaskNum---');
-  return num;
-}
+// SubTaskSchema.statics.getPendingTaskNum = async function (parentTaskId, imgNum) {
+//   const num = await this.count({ p: parentTaskId, u: { $gt: 0 } });
+//
+//   return num;
+// }
+//
+// SubTaskSchema.statics.getFulfilledTaskNum = async function (parentTaskId) {
+//   const num = await this.count({ p: parentTaskId, u: 0 });
+//
+//   return num;
+// }
 
-SubTaskSchema.statics.getFulfilledTaskNum = async function (parentTaskId) {
-  const num = await this.count({ p: parentTaskId, u: 0 });
-  console.log(num, '---getFulfilledTaskNum---');
-  return num;
-}
+SubTaskSchema.statics.getAllTask = async function (parentTaskId) {
+  const dataList = await this.find({ p: parentTaskId });
 
-SubTaskSchema.statics.getAllTaskNum = async function (parentTaskId) {
-  const num = await this.count({ p: parentTaskId });
-  console.log(num, '---getAllTaskNum---');
-  return num;
+  return dataList;
 }
 
 if (!SubTaskSchema.options.toObject) SubTaskSchema.options.toObject = {};
@@ -105,7 +97,6 @@ SubTaskSchema.options.toObject.transform = function (doc, ret, options) {
     initialtorName: ret.p.initialtorName,
     imgFolderPath: ret.p.imgFolderPath,
     imgArray: ret.p.imgArray,
-    unFulfilledImgNum: ret.u,
     title: ret.t,
     desc: ret.d,
     money: ret.m,

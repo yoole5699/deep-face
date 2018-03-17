@@ -31,7 +31,7 @@ const TaskCard = ({
   money,
   expireTime,
   progress,
-  unFulfilledImgNum,
+  imgArrayStatus,
 }) => (
   <Card
     hoverable
@@ -39,7 +39,7 @@ const TaskCard = ({
       <span>报酬：{money}元/张</span>,
       <Button type="primary" size="small">
         <Link to={`/task/${_id}?type=profile`}>
-          {unFulfilledImgNum === imgArray.length ? '开始任务' : '继续任务'}
+          {imgArrayStatus.length === 0 ? '开始任务' : '继续任务'}
         </Link>
       </Button>
     ]}

@@ -16,7 +16,7 @@ const MessageSchema = new Schema({
 
   c: {
     type: String,
-    alias: 'content',
+    alias: 'comment',
   },
 
   t: {

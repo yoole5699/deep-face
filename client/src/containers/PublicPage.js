@@ -72,6 +72,7 @@ const PublicPage = ({ location, userStore }) => {
                 switch (type) {
                   // 任务介绍、任务图片选择、任务审批、任务详情（标注页面）、分发任务配置
                   case 'intro':
+                  case 'review':
                   case 'profile': fetchTaskType = 'dispatch'; break;
                   case 'dispatch': fetchTaskType = 'origin'; break;
                   default: return <Redirect to="/" />

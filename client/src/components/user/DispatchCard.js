@@ -10,12 +10,12 @@ import {
   CountArea,
   CountOutArea,
 } from './CardLayout';
+import { TASK_STATUS } from 'utils/const';
 
 const DispatchCard = ({
-  unStartImgNum = 0, // TODO
-  unFulfilledImgNum,
   imgFolderPath,
   imgArray,
+  imgArrayStatus,
   title,
   desc,
   money,
@@ -38,15 +38,15 @@ const DispatchCard = ({
         <CountArea>
           <Count
             label="待审批"
-            value={`${unStartImgNum}`}
+            value={`${imgArrayStatus.filter(item => item.status === TASK_STATUS.WAITING_REVIEW).length}`}
           />
           <Count
             label="未开始"
-            value={`${unFulfilledImgNum}`}
+            value={`${imgArray.length - imgArrayStatus.length}`}
           />
         </CountArea>
         <Button type="primary" size="large">
-          <Link to={`/task/${_id}?type=profile`}>查看任务</Link>
+          <Link to={`/task/${_id}?type=review`}>查看任务</Link>
         </Button>
       </CountOutArea>
     </Layout>

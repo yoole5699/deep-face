@@ -2,25 +2,24 @@ import React, { Fragment } from 'react';
 import { Spin } from 'antd';
 import { inject, observer } from 'mobx-react';
 import { Main } from 'components/user/Layout';
-import { LabelSpace, ButtonArea, LabelResult } from 'components/taskspace';
-import { getImgPos } from 'utils/index';
+import { ReviewSpace, ButtonArea, ReviewResult } from 'components/review';
 
-class EditingCard extends React.Component {
+class ReviewCard extends React.Component {
   componentDidMount() {
-    const { labelStore } = this.props;
-    if (labelStore.imgArray.length === 0) {
-      labelStore.setImgArray(JSON.parse(window.localStorage.getItem('imgArray')));
+    const { reviewStore } = this.props;
+    if (reviewStore.imgArray.length === 0) {
+      reviewStore.setImgArray(JSON.parse(window.localStorage.getItem('reviewImgArray')));
     }
     const { match } = this.props;
     const { _id } = match.params;
     this.getCurrentImgArrayWithSize().then((imgArray) => {
-      labelStore.setImgArray(imgArray);
-      labelStore.loadTask(_id, 'dispatch');
+      reviewStore.setImgArray(imgArray);
+      reviewStore.loadTask(_id, 'dispatch');
     });
   }
 
   getCurrentImgArrayWithSize = () => {
-    const { imgArray } = this.props.labelStore;
+    const { imgArray } = this.props.reviewStore;
     return Promise.all(
       imgArray.map(async (item) => new Promise((res, rej) => {
         const img = new Image();
@@ -37,18 +36,14 @@ class EditingCard extends React.Component {
   }
 
   render() {
-    const { labelStore, match: { params: { _id } }, history } = this.props;
+    const { reviewStore, match: { params: { _id } }, history, imgPos } = this.props;
     const {
       task,
-      current,
       imgArray,
       isLoading,
-      resetLabelData,
-      undoHandler,
       zoomInImgScale,
       zoomOutImgScale,
-    } = labelStore;
-    const imgPos = getImgPos();
+    } = reviewStore;
     const isTaskReady = task && imgArray[imgPos].src;
 
     return (
@@ -62,15 +57,16 @@ class EditingCard extends React.Component {
             }
           </h2>
             {
-              current === 3
-                ? (<LabelResult labelStore={labelStore} _id={_id} history={history} />)
+              imgPos === imgArray.length
+                ? (<ReviewResult reviewStore={reviewStore} _id={_id} history={history} />)
                 : isTaskReady
                     && (
                          <Fragment>
-                           <LabelSpace labelStore={labelStore} />
+                           <ReviewSpace
+                             imgPos={imgPos}
+                             reviewStore={reviewStore}
+                           />
                            <ButtonArea
-                             resetHandler={resetLabelData}
-                             undoHandler={undoHandler}
                              zoomInHandler={zoomInImgScale}
                              zoomOutHandler={zoomOutImgScale}
                            />
@@ -84,4 +80,4 @@ class EditingCard extends React.Component {
 }
 
 
-export default inject('labelStore')(observer(EditingCard));
+export default inject('reviewStore')(observer(ReviewCard));

@@ -8,6 +8,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { useStrict } from 'mobx';
 import { Provider } from 'mobx-react';
 
+import reviewStore from './stores/reviewStore';
 import labelStore from './stores/labelStore';
 import taskStore from './stores/taskStore';
 import commonStore from './stores/commonStore';
@@ -15,6 +16,7 @@ import userStore from './stores/userStore';
 import authStore from './stores/authStore';
 
 const stores = {
+  reviewStore,
   labelStore,
   taskStore,
   commonStore,

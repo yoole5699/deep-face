@@ -18,13 +18,16 @@ const PureAvatar = styled.img`
   height: 120px;
 `;
 
+const statusColorMap = ['transparent', '#269abc', '#eea236', '#ac2925', '#4cae4c'];
 const Avatar = PureAvatar.withComponent(Checkbox).extend`
   background-image: ${(props) => `url(${props.src})`};
   background-repeat: round;
-`;
+  border: 1px solid ${({ status }) => statusColorMap[status]};
 
-const WaitingAvatar = Avatar.extend`
-  border: 1px solid rgb(139, 195, 74);
+  .ant-checkbox {
+    left: 85px;
+    top: 95px;
+  }
 `;
 
 const RightText = styled.div`
@@ -33,41 +36,43 @@ const RightText = styled.div`
   text-align: right;
 `;
 
+
 class ImgPicker extends React.Component {
 
-  componentWillUnMount() {
-    this.props.labelStore.resetStore();
+  componentWillMount() {
+    this.props.store.resetStore();
   }
 
   render() {
-    const { imgArray, imgFolderPath, fulfilledImgArray, labelStore } = this.props;
+    const { imgArray, imgFolderPath, imgArrayStatus, store } = this.props;
 
     return (
       <Fragment>
         <Checkbox
-          dataSource={imgArray}
-          indeterminate={labelStore.imgArray.length !== imgArray.length && labelStore.imgArray.length > 0}
-          checked={labelStore.imgArray.length === imgArray.length}
-          onChange={labelStore.checkAllImg}
+          dataSource={imgArray.map(item => `/${imgFolderPath}/${item}`)}
+          indeterminate={store.imgArray.length !== imgArray.length && store.imgArray.length > 0}
+          checked={store.imgArray.length === imgArray.length}
+          onChange={store.checkAllImg}
         >全选</Checkbox>
         <Layout>
             {
               imgArray.map((item, index) => {
-                const Com = fulfilledImgArray.includes(item) ? WaitingAvatar : Avatar;
+                const imgStatus = (imgArrayStatus.find(data => data.name === item) || { status: 0 }).status;
                 const imgFullpath = `/${imgFolderPath}/${item}`;
 
                 return (
-                  <Com
+                  <Avatar
                     key={index}
                     src={imgFullpath}
-                    checked={labelStore.imgArray.includes(imgFullpath)}
-                    onChange={labelStore.checkImg}
+                    status={imgStatus}
+                    checked={store.imgArray.includes(imgFullpath)}
+                    onChange={store.checkImg}
                   />
                 )
               })
             }
         </Layout>
-        <RightText>选中： {labelStore.imgArray.length}/{imgArray.length}</RightText>
+        <RightText>选中： {store.imgArray.length}/{imgArray.length}</RightText>
       </Fragment>
     )
   }

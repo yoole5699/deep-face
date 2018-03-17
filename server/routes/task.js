@@ -2,6 +2,7 @@ const router = require('koa-router')();
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
+const User = require('../models/user')
 const Task = require('../models/task');
 const SubTask = require('../models/subtask');
 const Label = require('../models/label');
@@ -41,7 +42,7 @@ router.get('/label', async ctx => {
 router.get('/:_id', async ctx => {
   const { _id } = ctx.params;
   let task = {};
-  let fulfilledImgArray = [];
+  let imgArrayStatus = [];
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     ctx.body = {
       code: 200,
@@ -54,14 +55,14 @@ router.get('/:_id', async ctx => {
     task = await Task.findById(_id);
   } else {
     task = await SubTask.findById(_id).populate({ path: 'p' });
-    fulfilledImgArray = await Label.findBySubTaskId(task.id);
+    imgArrayStatus = await Label.findBySubTaskId(task.id);
   }
 
   ctx.body = {
     code: 200,
     data: {
       ...task.toObject(),
-      fulfilledImgArray,
+      imgArrayStatus,
     },
   }
 })
@@ -92,25 +93,49 @@ router.post('/sub', async ctx => {
   };
 })
 
-async function updateTaskItem(taskId) {
+async function updateTaskItem(taskId, userName) {
   let taskItem = await SubTask.findOne({ _id: taskId });
-  taskItem.un_fulfilled_img_num--;
-
-  await taskItem.save();
+  if (taskItem.specified_executor !== userName) {
+    taskItem.specified_executor = userName;
+    await taskItem.save();
+  }
 }
 
 router.put('/label', async ctx => {
+  const { name } = ctx.state.user;
   const label = ctx.request.body;
+
   await Label.updateLabelItem(label);
-  label.status === RESOLVED && await updateTaskItem(label.task_id);
-  if (label.message) {
-    await User.addMessage(label.user_name, label.message);
-  }
+  await updateTaskItem(label.task_id, name);
 
   ctx.body = {
     code: 200,
     success: true,
   }
 })
+
+router.post('/label/status', async ctx => {
+  const { name } = ctx.state.user;
+  const { task_id, img_name, comment, status } = ctx.request.body;
+  const subTask = await SubTask.findById(task_id).populate('p');
+  const subTaskObj = subTask.toObject();
+
+  if (subTaskObj.initialtorName !== name) {
+    ctx.body = {
+      code: 403,
+      message: '你无权进行审核操作'
+    }
+  } else {
+    await Label.updateLabelItemStatus(ctx.request.body);
+    status === RESOLVED && (await SubTask.findOneAndUpdate({ _id: task_id }, { $inc: { u: -1 } }));
+    await User.addMessage(subTaskObj.specified_executor, { comment, senderName: name, taskId: task_id, });
+
+    ctx.body = {
+      code: 200,
+      success: true
+    };
+  }
+});
+
 
 module.exports = router

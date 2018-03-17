@@ -14,7 +14,7 @@ const mongoose = require('mongoose')
 mongoose.Promise = global.Promise
 // production
 // mongoose.connect('mongodb://user:pass@localhost:port/database', { config: { autoIndex: false } });
-mongoose.connect(config.mongodb, { useMongoClient:true })
+mongoose.connect(config.mongodb)
 
 
 const app = new Koa()

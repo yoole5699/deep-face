@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 
 const LabelImg = styled.div`
-  position: absolute;
-  left: 65px;
+  position: relative;
+  display: inline-block;
+  margin: 450px;
   height: 2000px;
 
   transition: all .3s linear;

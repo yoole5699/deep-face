@@ -8,8 +8,8 @@ const steps = [
 const TASK_STATUS = {
   TEMP_SAVE: 1,
   WAITING_REVIEW: 2,
-  PASS: 3,
-  FAILURE: 4,
+  REJECTED: 3,
+  PASS: 4,
 };
 const antithesesPointPos = [
   { t: 50, l: 50 },

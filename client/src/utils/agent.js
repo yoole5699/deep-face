@@ -77,6 +77,7 @@ const MyTask = {
 const Label = {
   one: (task) => requests.get(`/task/label?img_name=${task.imgName}&img_path=${task.imgFolderPath}&task_id=${task._id}`),
   update: (data) => requests.put(`/task/label`, JSON.stringify(data)),
+  updateStatus: (data) => requests.post(`/task/label/status`, { body: JSON.stringify(data) }),
 }
 
 const Common = {

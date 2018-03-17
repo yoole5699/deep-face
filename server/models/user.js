@@ -78,7 +78,7 @@ UserSchema.statics.setMessageSeen = async function(userId, messageId) {
 }
 
 UserSchema.statics.addMessage = async function(userName, message) {
-  const rawRes = await this.updateOne({ name: userName }, { $push: { message }})
+  const rawRes = await this.updateOne({ name: userName }, { $push: { c: message }})
 
   return rawRes;
 }

@@ -2,12 +2,24 @@ const router = require('koa-router')();
 const User = require('../models/user');
 const Task = require('../models/task');
 const SubTask = require('../models/subtask');
+const Label = require('../models/label');
+const {
+  UN_START,
+  PENDING,
+  WAITING,
+  REJECTED,
+  RESOLVED,
+} = require('../utils/const');
 
 router.get('tasks', async ctx => {
   const { offset, number } = ctx.request.query;
   const { name } = ctx.state.user;
 
   const taskList = await SubTask.findAllAvailable(name, parseInt(offset) || 0, parseInt(number) || 5);
+  for (let i = 0; i < taskList.length; i++) {
+    const _id = taskList[i]._id;
+    taskList[i].imgArrayStatus = await Label.findBySubTaskId(_id);
+  }
 
   ctx.body = {
     code: 200,
@@ -19,23 +31,38 @@ router.get('mytasks', async ctx => {
   const { offset, number, type } = ctx.request.query;
   const { name } = ctx.state.user;
 
-  let tasklist = [];
+  let taskList = [];
   const convertedOffset = parseInt(offset) || 0;
   const convertedNumber = parseInt(number) || 5;
   if (type === 'origin') {
     taskList = await Task.findByUserName(name, convertedOffset, convertedNumber);
-    for (var i = 0; i < taskList.length; i++) {
+
+    for (let i = 0; i < taskList.length; i++) {
       const _id = taskList[i]._id;
       const imgNum = taskList[i].imgArray.length;
-      console.log(taskList[i], '---taskList[i]---');
-      taskList[i].pendingTaskNum = await SubTask.getPendingTaskNum(_id, imgNum);
-      taskList[i].fulfilledTaskNum = await SubTask.getFulfilledTaskNum(_id);
-      taskList[i].allTaskNum = await SubTask.getAllTaskNum(_id);
+      const allSubTask = await SubTask.getAllTask(_id);
+      let pendingTaskNum = 0;
+      let fulfilledTaskNum = 0;
+      for (let j = 0; j < allSubTask.length; j++) {
+        const imgArrayStatus = await Label.findBySubTaskId(allSubTask[j]._id);
+        imgArrayStatus.every(item => item.status === RESOLVED) && imgArrayStatus === imgNum && fulfilledTaskNum++;
+        imgArrayStatus.length > 0 && pendingTaskNum++;
+      }
+      taskList[i].allTaskNum = allSubTask.length;
+      taskList[i].pendingTaskNum = pendingTaskNum;
+      taskList[i].fulfilledTaskNum = fulfilledTaskNum;
     }
-  } else if (type === 'dispatch') {
-    taskList = await SubTask.findMyDispatch(name, convertedOffset, convertedNumber);
   } else {
-    taskList = await SubTask.findMyOwn(name, type || 'pending', convertedOffset, convertedNumber);
+    if (type === 'dispatch') {
+      taskList = await SubTask.findMyDispatch(name, convertedOffset, convertedNumber);
+    } else {
+      taskList = await SubTask.findMyOwn(name, type || 'pending', convertedOffset, convertedNumber);
+    }
+
+    for (let i = 0; i < taskList.length; i++) {
+      const _id = taskList[i]._id;
+      taskList[i].imgArrayStatus = await Label.findBySubTaskId(_id);
+    }
   }
 
   ctx.body = {

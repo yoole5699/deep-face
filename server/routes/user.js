@@ -1,6 +1,9 @@
-const router = require('koa-router')()
-const User = require('../models/user')
-const base = require('../models/base')
+const router = require('koa-router')();
+const User = require('../models/user');
+const base = require('../models/base');
+const SubTask = require('../models/subtask');
+const Label = require('../models/label');
+const { RESOLVED } = require('../utils/const');
 
 router.post('/login', async ctx => {
   const { userName, password } = ctx.request.body;
@@ -45,6 +48,20 @@ router.get('/info', async ctx => {
   // TODO:是否需要每次查询后更新app_secret
   // token: base.signToke(user)
   const user = await base.checkToken(ctx, User, true);
+  const subTaskList = await SubTask.find({ s: user.userName });
+  let labelImgNum = 0;
+  let converedMoneyTotal = 0;
+
+  for (var i = 0; i < subTaskList.length; i++) {
+    const num = await Label.count({ t: subTaskList[i] });
+    labelImgNum += num;
+
+    const fulFilledNum = await Label.count({ t: subTaskList[i], s: RESOLVED });
+    converedMoneyTotal = fulFilledNum * subTaskList[i].money;
+  }
+  user.taskTotalNum = subTaskList.length;
+  user.labelImgNum = labelImgNum;
+  user.converedMoneyTotal = converedMoneyTotal;
 
   ctx.body = {
     code: 200,

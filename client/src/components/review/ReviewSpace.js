@@ -1,12 +1,11 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Main, LabelImg, OperationLayer, Point } from './layout';
-import { getImgPos } from 'utils/index';
+import { Main, LabelImg, Point } from '../taskspace/labelspace/layout';
 
-class LabelSpace extends React.Component {
+class ReviewSpace extends React.Component {
 
   componentDidMount() {
-    this.props.labelStore.loadLabel();
+    this.props.reviewStore.loadLabel();
     this.container.scrollTo(450, 450);
   }
 
@@ -17,19 +16,14 @@ class LabelSpace extends React.Component {
         style={{
           left: `${item.x - 6}px`,
           top: `${item.y - 6}px`,
-          backgroundColor: `${
-            current !== 2
-              ? draggingPointIndex === index
-                ? 'blue'
-                : '#BBBBBB'
-              : '#FF9800'}`,
+          backgroundColor: '#BBBBBB',
         }}
       />
     ))
   )
 
-  renderLabelData = (labelStore) => (
-    labelStore.labelData.map(({ p = [], ...rect }, index) => (
+  renderLabelData = (reviewStore) => (
+    reviewStore.labelData.map(({ p = [], ...rect }, index) => (
       [
         <div
           key={index}
@@ -40,27 +34,20 @@ class LabelSpace extends React.Component {
             top: `${rect.y}px`,
             width: `${rect.w}px`,
             height: `${rect.h}px`,
-            border: `4px solid ${
-              labelStore.current === 2 || labelStore.currentRect === index
-                ? '#E51C23'
-                : '#663F42'}`,
+            border: '4px solid #E51C23',
           }}
         />,
-        this.renderPointList(p, labelStore)
+        this.renderPointList(p, reviewStore)
       ]
     ))
   )
 
   render() {
-    const { labelStore } = this.props;
+    const { reviewStore, imgPos } = this.props;
     const {
-      mouseDownHandler,
-      mouseMoveHandler,
-      mouseUpHandler,
       imgArray,
       currentWidth
-    } = labelStore;
-    const imgPos = getImgPos();
+    } = reviewStore;
 
     return (
       <Main innerRef={target => this.container = target}>
@@ -71,16 +58,11 @@ class LabelSpace extends React.Component {
             backgroundSize: `${currentWidth}px`,
           }}
         >
-          {this.renderLabelData(labelStore)}
-          <OperationLayer
-            onMouseDown={mouseDownHandler}
-            onMouseMove={mouseMoveHandler}
-            onMouseUp={mouseUpHandler}
-          />
+          {this.renderLabelData(reviewStore)}
         </LabelImg>
       </Main>
     )
   }
 }
 
-export default observer(LabelSpace);
+export default observer(ReviewSpace);

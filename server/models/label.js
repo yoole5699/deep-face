@@ -52,13 +52,49 @@ LabelSchema.statics.findByName = async function(taskId, imgName){
 }
 
 LabelSchema.statics.findBySubTaskId = async function(taskId) {
-  const label = await this.find({
-    t: taskId,
-    s: { $in: [ WAITING, RESOLVED ]}
-  });
+  const label = await this.find({ t: taskId });
 
-  return label.map(item => item.img_name);
+  return label.map(item => ({
+    name: item.img_name,
+    status: item.status
+  }));
 }
+
+// LabelSchema.statics.getFulfilledImgNum = async function (taskId) {
+//   const num = await this.count({ t: taskId, s: RESOLVED });
+//
+//   return num;
+// }
+//
+// LabelSchema.statics.getFulfilledImgArray = async function (taskId) {
+//   const dataList = await this.find({ t: taskId, s: RESOLVED });
+//
+//   return dataList.map(item => item.img_name);
+// }
+//
+// LabelSchema.statics.getWaitingImgNum = async function (taskId) {
+//   const num = await this.count({ t: taskId, s: WAITING });
+//
+//   return num;
+// }
+//
+// LabelSchema.statics.getWaitingImgArray = async function (taskId) {
+//   const dataList = await this.find({ t: taskId, s: WAITING });
+//
+//   return dataList.map(item => item.img_name);
+// }
+//
+// LabelSchema.statics.getPendingImgNum = async function (taskId) {
+//   const num = await this.count({ t: taskId, s: PENDING });
+//
+//   return num;
+// }
+//
+// LabelSchema.statics.getPendingImgArray = async function (taskId) {
+//   const dataList = await this.find({ t: taskId, s: PENDING });
+//
+//   return dataList.map(item => item.img_name);
+// }
 
 LabelSchema.statics.updateLabelItem = async function(body) {
   await this.findOneAndUpdate(
@@ -71,6 +107,15 @@ LabelSchema.statics.updateLabelItem = async function(body) {
       s: body.status
     },
     { upsert: true }
+  );
+};
+
+LabelSchema.statics.updateLabelItemStatus = async function(body) {
+  await this.findOneAndUpdate(
+    { t: body.task_id, n: body.img_name },
+    {
+      s: body.status
+    }
   );
 };
 

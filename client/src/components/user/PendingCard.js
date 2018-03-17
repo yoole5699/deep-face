@@ -8,16 +8,17 @@ import {
   Status,
   TaskListCardLayout as Layout,
 } from './CardLayout';
+import { TASK_STATUS } from 'utils/const';
 
-const TaskListCard = (({
+const PendingCard = (({
   imgFolderPath,
   imgArray,
+  imgArrayStatus,
   title,
   desc,
   imgNum,
   money,
   expireTime,
-  unFulfilledImgNum,
   _id
 }) => (
   <Layout>
@@ -36,7 +37,7 @@ const TaskListCard = (({
     </Meta>
     <Action>
       <h4>标注进度</h4>
-      <Status>{Math.round((imgArray.length - unFulfilledImgNum) / imgArray.length * 100) + '%'}</Status>
+      <Status>{Math.round((imgArray.length - imgArrayStatus.filter(item => item.status === TASK_STATUS.PASS).length) / imgArray.length * 100) + '%'}</Status>
       <Button type="primary" size="large">
         <Link to={`/task/${_id}?type=profile`}>继续任务</Link>
       </Button>
@@ -44,4 +45,4 @@ const TaskListCard = (({
   </Layout>
 ))
 
-export default TaskListCard;
+export default PendingCard;
