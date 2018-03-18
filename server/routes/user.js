@@ -100,19 +100,25 @@ router.put('/info', async ctx => {
 // })
 
 router.put('/message', async ctx => {
-  const { messageId } = ctx.request.body;
-  const userId = ctx.state.user._id;
+  const { data } = ctx.request.body;
+  const userId = ctx.state.user.id;
+  await User.setMessageSeen(userId, data);
 
-  try {
-    await User.setMessageSeen(userId, messageId);
-
-    ctx.body = {
-      code: 200,
-      message: '已阅',
-    }
-  } catch (err) {
-    ctx.throw(err)
+  ctx.body = {
+    code: 200,
+    message: 'success',
   }
+})
+
+router.delete('/message/:_id', async ctx => {
+  const { _id } = ctx.params;
+  const userId = ctx.state.user.id;
+  await User.deleteMessage(userId, _id);
+
+  ctx.body = {
+    code: 200,
+    message: 'success',
+  };
 })
 
 module.exports = router

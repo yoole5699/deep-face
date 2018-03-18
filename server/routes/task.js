@@ -55,7 +55,8 @@ router.get('/:_id', async ctx => {
     task = await Task.findById(_id);
   } else {
     task = await SubTask.findById(_id).populate({ path: 'p' });
-    imgArrayStatus = await Label.findBySubTaskId(task.id);
+    console.log(task, '---task---');
+    imgArrayStatus = await Label.findBySubTaskId(_id);
   }
 
   ctx.body = {
@@ -116,7 +117,7 @@ router.put('/label', async ctx => {
 
 router.post('/label/status', async ctx => {
   const { name } = ctx.state.user;
-  const { task_id, img_name, comment, status } = ctx.request.body;
+  const { task_id, title, img_name, comment, status } = ctx.request.body;
   const subTask = await SubTask.findById(task_id).populate('p');
   const subTaskObj = subTask.toObject();
 
@@ -127,8 +128,7 @@ router.post('/label/status', async ctx => {
     }
   } else {
     await Label.updateLabelItemStatus(ctx.request.body);
-    status === RESOLVED && (await SubTask.findOneAndUpdate({ _id: task_id }, { $inc: { u: -1 } }));
-    await User.addMessage(subTaskObj.specified_executor, { comment, senderName: name, taskId: task_id, });
+    await User.addMessage(subTaskObj.specified_executor, { comment, title, img_name, status, senderName: name, taskId: task_id, });
 
     ctx.body = {
       code: 200,

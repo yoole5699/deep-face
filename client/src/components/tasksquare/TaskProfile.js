@@ -42,6 +42,15 @@ const TaskProfile = ({
       }
   };
   const isAllImgPassed = imgArrayStatus.every(item => item.status === TASK_STATUS.PASS) && imgArrayStatus.length === imgArray.length;
+  let disabled = true;
+  if (type === 'review') {
+    disabled = reviewStore.imgArray.length === 0 || initialtorName !== currentUser.userName;
+  } else {
+    disabled = isAllImgPassed || (specifiedExecutor !== currentUser.userName && specifiedExecutor !== '全部');
+    if (type === 'profile') {
+      disabled = labelStore.imgArray.length === 0;
+    }
+  }
 
   return (
     <Fragment>
@@ -73,11 +82,7 @@ const TaskProfile = ({
       }
       <ButtonArea>
         <Button
-          disabled={
-            (type === 'review' && (reviewStore.imgArray.length === 0 || initialtorName !== currentUser.userName)) ||
-            (type === 'profile' && labelStore.imgArray.length === 0) ||
-            (type !== 'review' && (isAllImgPassed || specifiedExecutor !== currentUser.userName && specifiedExecutor !== '全部'))
-          }
+          disabled={disabled}
           size="large"
           type="primary"
         >

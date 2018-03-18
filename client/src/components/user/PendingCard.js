@@ -37,7 +37,7 @@ const PendingCard = (({
     </Meta>
     <Action>
       <h4>标注进度</h4>
-      <Status>{Math.round((imgArray.length - imgArrayStatus.filter(item => item.status === TASK_STATUS.PASS).length) / imgArray.length * 100) + '%'}</Status>
+      <Status>{Math.round(imgArrayStatus.filter(item => item.status === TASK_STATUS.PASS || item.status === TASK_STATUS.WAITING_REVIEW).length / imgArray.length * 100) + '%'}</Status>
       <Button type="primary" size="large">
         <Link to={`/task/${_id}?type=profile`}>继续任务</Link>
       </Button>

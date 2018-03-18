@@ -4,7 +4,7 @@ import Login from 'containers/auth/Login';
 import Register from 'containers/auth/Register';
 import ReviewTask from 'containers/ReviewTask';
 
-const routes = [
+const auth = [
   {
     exact: true,
     path: '/login',
@@ -14,7 +14,10 @@ const routes = [
     exact: true,
     path: '/register',
     component: Register,
-  },
+  }
+];
+
+const routes = [
   {
     exact: true,
     path: '/task/:_id/label',
@@ -31,4 +34,4 @@ const routes = [
   },
 ];
 
-export default routes;
+export { auth, routes };

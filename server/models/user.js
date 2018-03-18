@@ -71,10 +71,22 @@ UserSchema.methods.comparePassword = async function(password) {
   return isMatch
 }
 
-UserSchema.statics.setMessageSeen = async function(userId, messageId) {
-   const rawRes = await this.updateOne({ id: userId, 'message._id': messageId }, { 'message.$.seen': true })
+UserSchema.statics.setMessageSeen = async function(userId, messageIds) {
+  // const rawRes = await this.update({ _id: userId }, { $set: { 'c.$[elem].s': true } }, { arrayFilters: [{ 'elem._id': { $in: messageIds }}], multi: true })
+  await mongoose.connection.db.command({
+    update: 'users',
+    updates: [
+      {
+        q: { '_id': mongoose.Types.ObjectId(userId) },
+        u: { $set: { 'c.$[elem].s': true } },
+        arrayFilters: [{ 'elem._id': { $in: messageIds.map(mongoose.Types.ObjectId) }}],
+      },
+    ],
+  });
+}
 
-   return rawRes;
+UserSchema.statics.deleteMessage = async function(userId, messageId) {
+  await this.updateOne({ _id: userId }, { $pull: { c: { _id: messageId } } });
 }
 
 UserSchema.statics.addMessage = async function(userName, message) {

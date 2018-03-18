@@ -31,13 +31,7 @@ const requestPlain = (url, options) => {
       if (data.code === 200) {
         return Promise.resolve(data)
       } else if (data.code === 401) {
-        authStore.logout();
-        Modal.warn({
-          title: '登录已过期，请重新登录!',
-          onOk: () => {
-            window.location.href = '/login';
-          }
-        });
+        logout();
       }
 
       return Promise.reject(data);
@@ -45,7 +39,7 @@ const requestPlain = (url, options) => {
 }
 
 const requests = {
-  del: url => requestPlain(`${API_ROOT}${url}`),
+  del: url => requestPlain(`${API_ROOT}${url}`, { method: 'delete' }),
   get: url => requestPlain(`${API_ROOT}${url}`, { method: 'GET' }),
   put: (url, body) => requestPlain(`${API_ROOT}${url}`, { method: 'PUT', body }),
   post: (url, body) => requestPlain(`${API_ROOT}${url}`, body),
@@ -62,12 +56,10 @@ const Auth = {
     requests.put('/user', { body: JSON.stringify({ user }) })
 };
 
-const Task = {
-
-  // my_all: (offset, number) => requests.get(`/mytasks?offset=${offset}&number=${number}`),
-  // my_pending: (offset, number) => requests.get(`/mytasks?offset=${offset}&number=${number}&status=pending`),
-  // my_fulfilled: (offset, number) => requests.get(`/mytasks?offset=${offset}&number=${number}status=fulfilled`),
-};
+const User = {
+  messageSeen: data => requests.put('/user/message',  JSON.stringify({ data })),
+  deleteMessage: _id => requests.del(`/user/message/${_id}`)
+}
 
 const MyTask = {
   all: (type, offset, number) => requests.get(`/mytasks?type=${type}&offset=${offset}&number=${number}`),
@@ -92,8 +84,18 @@ const Common = {
 
 export default {
   Auth,
-  Task,
+  User,
   MyTask,
   Label,
   Common,
 };
+
+export function logout() {
+  authStore.logout();
+  Modal.warn({
+    title: '登录已过期，请重新登录!',
+    onOk: () => {
+      window.location.href = '/login';
+    }
+  });
+}

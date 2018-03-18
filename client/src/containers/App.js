@@ -1,8 +1,11 @@
 import React from 'react';
+import { withRouter } from 'react-router';
+import { inject, observer } from 'mobx-react';
 import { Switch, Route } from 'react-router-dom';
-import routes from '../router';
+import { auth, routes } from '../router';
 import styled from 'styled-components';
 import NoMatch from './NoMatch';
+import AuthRedirect from './AuthRedirect';
 
 const Main = styled.div`
 	position: relative;
@@ -12,7 +15,7 @@ const Main = styled.div`
 	height: 100%;
 `;
 
-const App = () => (
+const App = ({ userStore }) => (
 	<Switch>
 		<Route
 			exact
@@ -22,16 +25,29 @@ const App = () => (
 		<Main>
 			<Switch>
 				{
-					routes.map(route => (
+					auth.map(route => (
 						<Route
 							key={route.path}
 							{...route}
 						/>
 					))
 				}
+				{
+					userStore.currentUser
+						? routes.map(route => (
+								<Route
+									key={route.path}
+									{...route}
+								/>
+							))
+						: <Route
+								path="/"
+								component={AuthRedirect}
+							/>
+				}
 			</Switch>
 		</Main>
 	</Switch>
 )
 
-export default App;
+export default inject('userStore')(withRouter(observer(App)));

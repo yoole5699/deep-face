@@ -68,9 +68,9 @@ const AntithesesSider = ({ reviewStore, history }) => {
           style={{ marginTop: 15, marginBottom: 10, width: '100%' }}
         >通过</Button>
         <Button
-          type="primary"
+          type="danger"
           onClick={updateHandler(TASK_STATUS.REJECTED)}
-          style={{ marginTop: 15, marginBottom: 10, width: '100%', backgroundColor: '#d9534f', borderColor: '#d43f3a' }}
+          style={{ marginTop: 15, marginBottom: 10, width: '100%',  }}
         >拒绝</Button>
       </Fragment>
     </Main>

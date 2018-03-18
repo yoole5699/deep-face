@@ -18,7 +18,7 @@ const PureAvatar = styled.img`
   height: 120px;
 `;
 
-const statusColorMap = ['transparent', '#269abc', '#eea236', '#ac2925', '#4cae4c'];
+const statusColorMap = ['red', '#269abc', '#eea236', '#ac2925', '#4cae4c'];
 const Avatar = PureAvatar.withComponent(Checkbox).extend`
   background-image: ${(props) => `url(${props.src})`};
   background-repeat: round;
@@ -36,6 +36,20 @@ const RightText = styled.div`
   text-align: right;
 `;
 
+const Tag = styled.div`
+  margin-left: 10px;
+  width: 30px;
+  height: 20px;
+  display: inline-block;
+  background-color: ${({ color }) => color};
+`;
+
+const FlexRow = styled.div`
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
 class ImgPicker extends React.Component {
 
@@ -48,12 +62,21 @@ class ImgPicker extends React.Component {
 
     return (
       <Fragment>
-        <Checkbox
-          dataSource={imgArray.map(item => `/${imgFolderPath}/${item}`)}
-          indeterminate={store.imgArray.length !== imgArray.length && store.imgArray.length > 0}
-          checked={store.imgArray.length === imgArray.length}
-          onChange={store.checkAllImg}
-        >全选</Checkbox>
+        <FlexRow>
+          <Checkbox
+            dataSource={imgArray.map(item => `/${imgFolderPath}/${item}`)}
+            indeterminate={store.imgArray.length !== imgArray.length && store.imgArray.length > 0}
+            checked={store.imgArray.length === imgArray.length}
+            onChange={store.checkAllImg}
+            >全选</Checkbox>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Tag color={statusColorMap[0]} />&nbsp;未开始
+              <Tag color={statusColorMap[1]} />&nbsp;进行中
+              <Tag color={statusColorMap[2]} />&nbsp;待审批
+              <Tag color={statusColorMap[3]} />&nbsp;已驳回
+              <Tag color={statusColorMap[4]} />&nbsp;已通过
+            </div>
+        </FlexRow>
         <Layout>
             {
               imgArray.map((item, index) => {

@@ -9,6 +9,8 @@ class UserStore {
       loadingUser: false,
       updatingUser: false,
       updatingUserErrors: undefined,
+
+      currentPage: 0,
     });
   }
 
@@ -24,6 +26,29 @@ class UserStore {
     return agent.Auth.save(newUser)
       .then(action(({ user }) => { this.currentUser = user; }))
       .finally(action(() => { this.updatingUser = false; }))
+  })
+
+  resetCurrentPage = action(() => {
+    this.currentPage = 0;
+  })
+
+  setCurrentPage = action(() => {
+    this.currentPage++;
+
+    const unSeenMessageIds = this.currentUser.comments
+      .slice((this.currentPage - 1) * 10, this.currentPage * 10)
+      .filter(item => !item.seen)
+      .map(item => item._id);
+    if (unSeenMessageIds.length !== 0) this.setMessageSeen(unSeenMessageIds);
+  })
+
+  setMessageSeen = action((messageArray) => {
+    agent.User.messageSeen(messageArray);
+  })
+
+  deleteMessage = action((messageID) => {
+    this.currentUser.comments = this.currentUser.comments.filter(item => item._id !== messageID);
+    agent.User.deleteMessage(messageID);
   })
 
   forgetUser = action(() => {

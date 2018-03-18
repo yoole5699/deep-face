@@ -6,12 +6,6 @@ import { MdAvatar, LgAvatar, Divider, TaskItem } from 'components/common';
 import { Row, Col, List, Button } from 'antd';
 
 class PublicSider extends React.Component {
-  componentDidMount() {
-    if (!this.props.userStore.currentUser) {
-      this.props.userStore.pullUser();
-    }
-  }
-
   render() {
     const { userName, desc = '软件学院·好孩子', tasks } = this.props.userStore.currentUser || {};
     const { location } = this.props;

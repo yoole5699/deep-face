@@ -6,6 +6,7 @@ import {
   AntithesesSider,
   ReviewCard,
 } from './review';
+import BadgeAvatar from '../components/common/Avatar';
 import { getImgPos } from 'utils/index';
 
 const { Header, Sider, Content } = Layout;
@@ -16,7 +17,7 @@ const ReviewTask = (props) => {
   return (
     <Layout>
       <Header>
-        <HeaderNav />
+        <HeaderNav><BadgeAvatar /></HeaderNav>
       </Header>
       <TaskSteps {...props} />
       <Layout>

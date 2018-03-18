@@ -4,13 +4,14 @@ import agent from 'utils/agent';
 import { getImgPos } from 'utils/index';
 
 const getTaskObj = (store) => {
-  const { imgFolderPath, _id  } = store.task;
+  const { imgFolderPath, _id, title  } = store.task;
   const imgPos = getImgPos();
   const imgFullpath = store.imgArray[imgPos].src;
   const imgName = imgFullpath.substr(imgFolderPath.length + 2);
 
   return {
     imgFolderPath,
+    title,
     _id,
     imgName,
   }
@@ -154,6 +155,7 @@ class ReviewStore {
     return this.asyncAction(
       agent.Label.updateStatus({
         task_id: taskObj._id,
+        title: taskObj.title,
         img_name: taskObj.imgName,
         comment: this.comment,
         status
