@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Icon } from 'antd';
 import { transferDateToString } from 'utils';
+import { TASK_STATUS } from 'utils/const';
 
 const Layout = styled.div`
   position: relative;
@@ -17,6 +18,7 @@ const Mask = styled.div`
 
   background-color: rgb(87, 87, 87);
   line-height: 75px;
+  text-align: center;
   opacity: ${({ show }) => show ? 0.91: 0};
   transition: all linear .2s;
 `;
@@ -42,7 +44,7 @@ class TaskItem extends React.PureComponent {
   }
 
   render() {
-    const { title, finishedStatus, expireTime } = this.props;
+    const { title,  expireTime, _id, label } = this.props;
     const { hover } = this.state;
 
     return (
@@ -52,12 +54,12 @@ class TaskItem extends React.PureComponent {
           onMouseEnter={this.showMask}
           onMouseLeave={this.hideMask}
         >
-          <Link to="{parentTaskId}">继续任务 -></Link>
+          <Link to={`/task/${_id}?type=profile`} style={{ color: '#fff', fontSize: 24 }}>继续任务 >></Link>
         </Mask>
-        <Icon type="check-circle-o" style={{ color: 'white', fontSize: 30, marginRight: 20 }}/>
+        <Icon type="check-circle-o" style={{ color: 'white', fontSize: 30, marginRight: 20, verticalAlign: 'top' }}/>
         <div style={{ flexGrow: 1, textAlign: 'left', display: 'inline-block' }}>
           <h3 style={{ color: 'white' }}>{title}</h3>
-          <div style={{ color: 'rgb(187, 187, 187)'}}>任务进度:{finishedStatus}</div>
+          <div style={{ color: 'rgb(187, 187, 187)'}}>任务进度:{label.filter(item => item.status === TASK_STATUS.PASS || item.status === TASK_STATUS.WAITING_REVIEW).length + '/' + label.length}</div>
           <div style={{ color: 'rgb(187, 187, 187)'}}>截止时间:{transferDateToString(expireTime)}</div>
         </div>
       </Layout>

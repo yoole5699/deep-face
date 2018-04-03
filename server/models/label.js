@@ -9,12 +9,12 @@ const {
 } = require('../utils/const');
 
 const LabelSchema = new Schema({
-  t: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    alias: 'task_id',
-    ref: 'SubTask',
-  },
+  // t: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   required: true,
+  //   alias: 'task_id',
+  //   ref: 'SubTask',
+  // },
 
   n: {
     type: String,
@@ -35,9 +35,10 @@ const LabelSchema = new Schema({
     alias: 'data',
   },
 
-  // 1:开始但未完成, 2:完成但待审核, 3: 审核未通过, 4: 审核通过
+  // 0: 未开始, 1:开始但未完成, 2:完成但待审核, 3: 审核未通过, 4: 审核通过
   s: {
     type: Number,
+    default: 0,
     alias: 'status',
   }
 })
@@ -98,15 +99,12 @@ LabelSchema.statics.findBySubTaskId = async function(taskId) {
 
 LabelSchema.statics.updateLabelItem = async function(body) {
   await this.findOneAndUpdate(
-    { t: body.task_id, n: body.img_name },
+    { _id: body._id },
     {
-      t: body.task_id,
-      n: body.img_name,
       w: body.current_width || 500,
       d: body.data,
       s: body.status
-    },
-    { upsert: true }
+    }
   );
 };
 
@@ -124,9 +122,11 @@ LabelSchema.options.toObject.transform = function (doc, ret, options) {
   return {
     _id: ret._id,
     data: {
-      currentWidth: ret.current_width,
-      dataSet: ret.data
+      currentWidth: ret.w,
+      dataSet: ret.d
     },
+    name: ret.n,
+    status: ret.s
   }
 }
 

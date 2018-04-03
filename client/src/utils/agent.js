@@ -64,10 +64,12 @@ const User = {
 const MyTask = {
   all: (type, offset, number) => requests.get(`/mytasks?type=${type}&offset=${offset}&number=${number}`),
   one: (_id, type) => requests.get(`/task/${_id}?type=${type}`),
+  oneAllSub: (_id) => requests.get(`/task/${_id}/sub`)
 }
 
 const Label = {
   one: (task) => requests.get(`/task/label?img_name=${task.imgName}&img_path=${task.imgFolderPath}&task_id=${task._id}`),
+  file: (path, _id) => requests.get(`/label/file?file_path=${encodeURIComponent(path)}&task_id=${_id}`),
   update: (data) => requests.put(`/task/label`, JSON.stringify(data)),
   updateStatus: (data) => requests.post(`/task/label/status`, { body: JSON.stringify(data) }),
 }

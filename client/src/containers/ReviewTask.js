@@ -19,12 +19,17 @@ const ReviewTask = (props) => {
       <Header>
         <HeaderNav><BadgeAvatar /></HeaderNav>
       </Header>
-      <TaskSteps {...props} />
+      <TaskSteps {...props} imgPos={imgPos} />
       <Layout>
         <Content style={{ marginRight: '20px' }}>
           <ReviewCard {...props} imgPos={imgPos} />
         </Content>
-        <Sider width={240}><AntithesesSider history={props.history} /></Sider>
+        <Sider width={240}>
+          <AntithesesSider
+            imgPos={imgPos} 
+            history={props.history}
+          />
+        </Sider>
       </Layout>
     </Layout>
   )

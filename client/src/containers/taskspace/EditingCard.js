@@ -63,11 +63,21 @@ class EditingCard extends React.Component {
           </h2>
             {
               current === 3
-                ? (<LabelResult labelStore={labelStore} _id={_id} history={history} />)
+                ? (
+                    <LabelResult
+                      labelStore={labelStore}
+                      _id={_id}
+                      imgPos={imgPos}
+                      history={history}
+                    />
+                  )
                 : isTaskReady
                     && (
                          <Fragment>
-                           <LabelSpace labelStore={labelStore} />
+                           <LabelSpace
+                             labelStore={labelStore}
+                             imgPos={imgPos}
+                           />
                            <ButtonArea
                              resetHandler={resetLabelData}
                              undoHandler={undoHandler}

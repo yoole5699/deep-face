@@ -1,4 +1,5 @@
 const router = require('koa-router')();
+const path = require('path');
 const User = require('../models/user');
 const Task = require('../models/task');
 const SubTask = require('../models/subtask');
@@ -58,11 +59,6 @@ router.get('mytasks', async ctx => {
     } else {
       taskList = await SubTask.findMyOwn(name, type || 'pending', convertedOffset, convertedNumber);
     }
-
-    for (let i = 0; i < taskList.length; i++) {
-      const _id = taskList[i]._id;
-      taskList[i].imgArrayStatus = await Label.findBySubTaskId(_id);
-    }
   }
 
   ctx.body = {
@@ -80,6 +76,24 @@ router.get('search', async ctx => {
   ctx.body = {
     code: 200,
     data: taskList.toObject(),
+  }
+})
+
+router.get('label/file', async ctx => {
+  const { file_path, task_id } = ctx.query;
+  const { name } = ctx.state.user;
+  const isValid = await SubTask.findOne({ _id: task_id, s: { $in: [ '全部', name ] } });
+  let data = {};
+
+  if (isValid) {
+    const labelFilePath = path.join(__dirname, '../../public', file_path);
+    console.log(labelFilePath, '---labelFilePath---');
+    data = require(labelFilePath);
+  }
+
+  ctx.body = {
+    data,
+    code: 200,
   }
 })
 

@@ -22,7 +22,7 @@ const OperationLayer = styled.div`
   width: 100%;
   height: 100%;
   background-color: transparent;
-  z-index: 10;
+  z-index: 1;
 `;
 
 const Point = styled.div`
@@ -31,11 +31,22 @@ const Point = styled.div`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-`
+`;
+
+const PointWithNum = Point.extend`
+  &::after {
+    content: ${({ content }) => content};
+    margin-left: 5px;
+    display: block;
+    line-height: 5px;
+    color: red;
+  }
+`;
 
 export {
   LabelImg,
   Main,
   OperationLayer,
   Point,
+  PointWithNum
 };

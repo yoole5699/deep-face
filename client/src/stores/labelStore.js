@@ -5,15 +5,16 @@ import { TASK_STATUS } from 'utils/const';
 import { getImgPos } from 'utils/index';
 
 const getTaskObj = (store) => {
-  const { imgFolderPath, _id  } = store.task;
+  const { imgFolderPath, _id, label  } = store.task;
   const imgPos = getImgPos();
   const imgFullpath = store.imgArray[imgPos].src;
   const imgName = imgFullpath.substr(imgFolderPath.length + 2);
 
   return {
-    imgFolderPath,
-    _id,
     imgName,
+    imgFolderPath,
+    labelItem: label.find(item => item.name === imgName),
+    taskId: _id,
   }
 }
 
@@ -28,6 +29,7 @@ class LabelStore {
       pointIsDragging: false,
       pointIsDrawing: false,
       labelData: [],
+      contextMenu: undefined,
 
       isLoading: true,
       currentWidth: 500,
@@ -44,6 +46,13 @@ class LabelStore {
       },
       { delay: 1000 }
     );
+
+    reaction(
+      () => this.contextMenu,
+      menu => {
+        if (!menu) { document.body.removeEventListener('click', this.destroyContextMenu, false); }
+      }
+    )
   }
 
   resetLabelData = action(() => {
@@ -110,9 +119,41 @@ class LabelStore {
     );
   })
 
+  contextMenuHandler = action((event) => {
+    if (this.current === 1) {
+      const { offsetX, offsetY } = event.nativeEvent;
+      let pointIndex = -1;
+      let rectIndex = -1;
+      this.labelData.forEach(({ p }, index) => {
+        pointIndex = p.findIndex(item => Math.abs(item.x - offsetX) <= 12 && Math.abs(item.y - offsetY) <= 12);
+        pointIndex >= 0 && (rectIndex = index);
+      })
+
+      if (pointIndex >= 0 && rectIndex >= 0) {
+        this.contextMenu = {
+          rectIndex,
+          pointIndex,
+        };
+        document.body.addEventListener('click', this.destroyContextMenu, false);
+      }
+    }
+  })
+
+  setPointStatus = action(({ key, domEvent }) => {
+    this.labelData[this.contextMenu.rectIndex].p[this.contextMenu.pointIndex].s = parseInt(key, 10);
+  })
+
+  destroyContextMenu = action(() => {
+    setTimeout(action(() => {
+      this.contextMenu = undefined;
+    }), 0);
+  })
+
   mouseDownHandler = action((event) => {
-    if (this.current === 0) { this.startDrawRect(event); }
-    if (this.current === 1) { this.startDragPoint(event); }
+    if (event.button === 0) {
+      if (this.current === 0) { this.startDrawRect(event); }
+      if (this.current === 1) { this.startDragPoint(event); }
+    }
   })
 
   mouseMoveHandler = action((event) => {
@@ -121,8 +162,10 @@ class LabelStore {
   })
 
   mouseUpHandler = action((event) => {
-    if (this.current === 0) { this.endDrawRect(event); }
-    if (this.current === 1) { this.endDragPoint(event); }
+    if (event.button === 0) {
+      if (this.current === 0) { this.endDrawRect(event); }
+      if (this.current === 1) { this.endDragPoint(event); }
+    }
   })
 
   startDrawRect = action((event) => {
@@ -168,7 +211,7 @@ class LabelStore {
 
     this.draggingPointIndex = index;
     this.pointIsDragging = index !== -1;
-    this.pointIsDrawing = index === -1 && currentLabelPointArray.length < 28;
+    this.pointIsDrawing = index === -1 && currentLabelPointArray.length < this.task.kind.n;
   })
 
   draggingPoint = action((event) => {
@@ -176,13 +219,14 @@ class LabelStore {
 
     const { offsetX, offsetY } = event.nativeEvent;
     const currentLabel = this.labelData[this.currentRect];
-    currentLabel.p[this.draggingPointIndex] = { x: offsetX, y: offsetY };
+    currentLabel.p[this.draggingPointIndex].x = offsetX;
+    currentLabel.p[this.draggingPointIndex].y = offsetY;
   })
 
   endDragPoint = action((event) => {
     const { offsetX, offsetY } = event.nativeEvent;
     if (this.pointIsDrawing) {
-      this.labelData[this.currentRect].p.push({ x: offsetX, y: offsetY });
+      this.labelData[this.currentRect].p.push({ x: offsetX, y: offsetY, s: 1 });
       this.pointIsDrawing = false;
     } else {
       this.draggingPointIndex = -1;
@@ -203,7 +247,7 @@ class LabelStore {
 
       case 1:
         this.labelData.forEach((item, index) => {
-          item.p.length < 28 && (this.error = `第${index + 1}个框未达到标注要求`);
+          item.p.length < this.task.kind.n && (this.error = `第${index + 1}个框未达到标注要求`);
         });
         break;
 
@@ -267,15 +311,31 @@ class LabelStore {
 
   loadLabel = action(() => {
     const taskObj = getTaskObj(this);
-
+    const suffix = taskObj.imgName.lastIndexOf('.');
+    const labelFilePath = taskObj.imgFolderPath + '/' +  taskObj.imgName.substring(0, suffix) + '.json';
     return this.asyncAction(
-      agent.Label.one(taskObj)
-        .then(action(({ data }) => {
-          this.labelData = data.dataSet;
-          this.currentWidth = data.currentWidth;
+      agent.Label.file(labelFilePath, this.task._id)
+        .then(action((data) => {
+          this.labelData = taskObj.labelItem.data.dataSet;
+          this.currentWidth = taskObj.labelItem.data.currentWidth;
           this.currentRect = this.labelData.length;
+          console.log(data, '---data---');
         }))
     )
+    // return this.asyncAction(
+    //   agent.Label.one(taskObj)
+    //     .then(action(({ data }) => {
+          // {
+          //   imgFolderPath,
+          //   _id,
+          //   imgName,
+          // }
+          // const labelData = require()
+          // this.labelData = data.dataSet;
+          // this.currentWidth = data.currentWidth;
+          // this.currentRect = this.labelData.length;
+    //     }))
+    // )
   })
 
   saveHandler = action(status => {
@@ -283,16 +343,25 @@ class LabelStore {
 
     return this.asyncAction(
       agent.Label.update({
-        task_id: taskObj._id,
+        status,
+        _id: taskObj.labelItem._id,
+        task_id: taskObj.taskId,
         img_name: taskObj.imgName,
         current_width: this.currentWidth,
         data: toJS(this.labelData),
-        status
-      }).catch(
-        action(({ message }) => {
-          this.error = message;
-        })
-      )
+      })
+        .then(
+          action(() => {
+            taskObj.labelItem.status = status;
+            taskObj.labelItem.data.dataSet = this.labelData;
+            taskObj.labelItem.data.currentWidth = this.currentWidth;
+          })
+        )
+        .catch(
+          action(({ message }) => {
+            this.error = message;
+          })
+        )
     );
   });
 

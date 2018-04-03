@@ -36,6 +36,14 @@ const getImgPos = () => {
   return parseInt(imgPos, 10) || 0;
 }
 
+const countImgStatus = (imgArrayStatus) => {
+  let hash = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
+  imgArrayStatus.forEach(item => {
+    hash[item.status]++;
+  });
+  return hash;
+}
+
 export {
   getCookieObj,
   getCookieByKey,
@@ -43,5 +51,6 @@ export {
   removeCookieByKey,
   firstLetterUpperCase,
   transferDateToString,
-  getImgPos
+  getImgPos,
+  countImgStatus
 }

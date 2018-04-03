@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Main, LabelImg, Point } from '../taskspace/labelspace/layout';
+import { Main, LabelImg, PointWithNum } from '../taskspace/labelspace/layout';
 
 class ReviewSpace extends React.Component {
 
@@ -11,11 +11,13 @@ class ReviewSpace extends React.Component {
 
   renderPointList = (data, { current, draggingPointIndex }) => (
     data.map((item, index) => (
-      <Point
+      <PointWithNum
         key={index}
+        content={index + 1}
         style={{
           left: `${item.x - 6}px`,
           top: `${item.y - 6}px`,
+          opacity: `${item.s === 1 ? 1 : 0.5}`,
           backgroundColor: '#BBBBBB',
         }}
       />

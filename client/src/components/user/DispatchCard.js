@@ -15,20 +15,27 @@ import { TASK_STATUS } from 'utils/const';
 const DispatchCard = ({
   imgFolderPath,
   imgArray,
-  imgArrayStatus,
+  label,
   title,
   desc,
   money,
   expireTime,
   _id,
 }) => {
+  let waitingReviewNum = 0;
+  let unstartNum = 0;
+  label.forEach(item => {
+    item.status === TASK_STATUS.WAITING_REVIEW && waitingReviewNum++;
+    item.status === TASK_STATUS.UN_START && unstartNum++;
+  })
+
   return (
     <Layout>
-      <Avatar src={`/${imgFolderPath}/${imgArray[0]}`} alt="封面"/>
+      <Avatar src={`/${imgFolderPath}/${label[0].name}`} alt="封面"/>
       <Meta>
         <h4>{title}</h4>
         <EllipsisText desc={desc} />
-        图片数量: {imgArray.length}
+        图片数量: {label.length}
         <br />
         报酬：{money}元/张
         <br />
@@ -38,11 +45,11 @@ const DispatchCard = ({
         <CountArea>
           <Count
             label="待审批"
-            value={`${imgArrayStatus.filter(item => item.status === TASK_STATUS.WAITING_REVIEW).length}`}
+            value={waitingReviewNum}
           />
           <Count
             label="未开始"
-            value={`${imgArray.length - imgArrayStatus.length}`}
+            value={unstartNum}
           />
         </CountArea>
         <Button type="primary" size="large">

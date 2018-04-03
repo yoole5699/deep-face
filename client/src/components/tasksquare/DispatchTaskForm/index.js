@@ -1,12 +1,14 @@
 import React from 'react';
 import moment from 'moment';
 import { Form, Button, Input, DatePicker, InputNumber, notification } from 'antd';
-import UserSelect from '../common/UserSelect';
+import UserSelect from '../../common/UserSelect';
+import TaskTypeSelect from './TaskTypeSelect';
+import ImgPicker from './ImgPicker';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
 
-const DispatchTaskForm = ({ form, history, _id, title, desc, imgArray, taskStore: { dispatchTask } }) => {
+const DispatchTaskForm = ({ form, history, _id, title, desc, imgArray, imgFolderPath, taskStore: { dispatchTask } }) => {
   const { getFieldDecorator } = form;
   const formItemLayout = {
     labelCol: { span: 3 },
@@ -22,7 +24,7 @@ const DispatchTaskForm = ({ form, history, _id, title, desc, imgArray, taskStore
           ...formData,
           parent: _id,
           expire_time: formData['expire_time'].valueOf(),
-          un_fulfilled_img_num: imgArray.length,
+          label: formData.label.map(item => ({ img_name: item })),
         }).then(({ success }) => {
           if (success) {
             notification['success']({
@@ -35,6 +37,14 @@ const DispatchTaskForm = ({ form, history, _id, title, desc, imgArray, taskStore
       }
     });
   };
+
+  const checkTaskKind = (rule, value, callback) => {
+    if (value.t === "1" && value.n <= 0) {
+      callback('标点数必须要大于0');
+      return;
+    }
+    callback();
+  }
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -76,6 +86,23 @@ const DispatchTaskForm = ({ form, history, _id, title, desc, imgArray, taskStore
       <FormItem
         labelCol={{ span: 3 }}
         wrapperCol={{ span: 5 }}
+        label="任务类型"
+      >
+        {getFieldDecorator('kind', {
+          initialValue: { n: 28, t: '1' },
+          validateTrigger: 'onBlur',
+          rules: [
+            { required: true, message: '任务类型为必选项' },
+            { validator: checkTaskKind, }
+          ]
+        })(
+          <TaskTypeSelect />
+        )}
+      </FormItem>
+
+      <FormItem
+        labelCol={{ span: 3 }}
+        wrapperCol={{ span: 5 }}
         label="指定用户"
       >
         {getFieldDecorator('specified_executor', {
@@ -109,6 +136,22 @@ const DispatchTaskForm = ({ form, history, _id, title, desc, imgArray, taskStore
           rules: [{ type: 'object', required: true, message: '请选择截止日期!' }],
         })(
           <DatePicker />
+        )}
+      </FormItem>
+
+      <FormItem
+        {...formItemLayout}
+        label="选择图片"
+      >
+        {getFieldDecorator('label', {
+          validateTrigger: 'onBlur',
+          initialValue: imgArray.slice(),
+          rules: [{ required: true, message: '请至少选择一张图片!' }],
+        })(
+          <ImgPicker
+            imgArray={imgArray.slice()}
+            imgFolderPath={imgFolderPath}
+          />
         )}
       </FormItem>
 

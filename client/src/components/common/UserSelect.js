@@ -60,7 +60,7 @@ class UserSelect extends React.Component {
         onSelect={this.handleSelect}
       >
         {data.map(item => <Option key={item.value}>{item.text}</Option>)}
-        <Option key="all" value="all">全部</Option>
+        <Option key="all" value="全部">全部</Option>
       </Select>
     )
   }

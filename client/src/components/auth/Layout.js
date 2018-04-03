@@ -20,10 +20,10 @@ const Layout = styled(Card).attrs({
   top: 150px;
   right: 100px;
 
-  width: 400px;
+  width: 338px;
   min-height: 450px;
 
-  background-color: #001529;
+  background-color: rgb(64, 64, 64);
 `;
 
 export default Layout;

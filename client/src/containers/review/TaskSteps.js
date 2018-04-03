@@ -1,7 +1,6 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react';
 import styled from 'styled-components';
-import { getImgPos } from 'utils/index';
 
 const Main = styled.div`
   margin: 30px 0;
@@ -15,8 +14,7 @@ const Avatar = styled.img`
   border-radius: 50%;
 `;
 
-const TaskSteps = ({ reviewStore, history }) => {
-  const imgPos = getImgPos();
+const TaskSteps = ({ reviewStore, history, imgPos }) => {
 
   return (
      <Main current={imgPos}>

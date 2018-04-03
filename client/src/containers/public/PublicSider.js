@@ -2,12 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { inject, observer } from 'mobx-react';
 import HEAD from '../../resource/image/avatar.png';
-import { MdAvatar, LgAvatar, Divider, TaskItem } from 'components/common';
+import { MdAvatar, LgAvatar, Divider, TaskItem, TaskDescribtion } from 'components/common';
 import { Row, Col, List, Button } from 'antd';
 
 class PublicSider extends React.Component {
+  componentDidMount() {
+    this.props.taskStore.loadTaskList('pending');
+  }
+
   render() {
-    const { userName, desc = '软件学院·好孩子', tasks } = this.props.userStore.currentUser || {};
+    const { userName, desc = '软件学院·好孩子' } = this.props.userStore.currentUser || {};
     const { location } = this.props;
 
     if (location.pathname === '/person-center') {
@@ -26,6 +30,8 @@ class PublicSider extends React.Component {
       )
     }
 
+    const { is_pending_loading, pending_task_list } = this.props.taskStore;
+
     return (
       <div style={{ padding: '44px 20px 0'}}>
         <Row>
@@ -36,16 +42,23 @@ class PublicSider extends React.Component {
           </Col>
         </Row>
         <Divider />
-        <List
-          locale={{ emptyText: <h4 style={{ color: 'white' }}>您的任务列表空空如也~</h4>}}
-          dataSource={tasks}
-          renderItem={item => (
-              <TaskItem {...item} key={item.title}/>
-          )}
-        />
+        {
+          location.pathname.startsWith('/task/')
+            ? <TaskDescribtion
+                _id={location.pathname.substring(6)}
+              />
+            : <List
+                loading={is_pending_loading && pending_task_list.length === 0}
+                locale={{ emptyText: <h4 style={{ color: 'white' }}>您的任务列表空空如也~</h4>}}
+                dataSource={pending_task_list}
+                renderItem={item => (
+                    <TaskItem {...item} key={item.title}/>
+                )}
+              />
+        }
       </div>
     )
   }
 }
 
-export default inject('userStore')(observer(PublicSider));
+export default inject('userStore', 'taskStore')(observer(PublicSider));

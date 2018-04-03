@@ -11,9 +11,8 @@ import {
 import { antithesesPointPos } from 'utils/const';
 import Reference from 'resource/image/reference.jpeg';
 import { TASK_STATUS } from 'utils/const';
-import { getImgPos } from 'utils/index';
 
-const AntithesesSider = ({ reviewStore, history }) => {
+const AntithesesSider = ({ reviewStore, history, imgPos }) => {
   const {
     currentRect,
     comment,
@@ -22,7 +21,6 @@ const AntithesesSider = ({ reviewStore, history }) => {
     task
   } = reviewStore;
 
-  const imgPos = getImgPos();
   const isReviewOver = imgArray.length === imgPos + 1;
   const updateHandler = (status) => {
     return () => {

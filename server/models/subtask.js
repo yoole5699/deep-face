@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const LabelSchema = require('./label')
 
 const SubTaskSchema = new mongoose.Schema({
   t: {
@@ -10,6 +11,14 @@ const SubTaskSchema = new mongoose.Schema({
   d: {
     type: String,
     alias: 'desc',
+  },
+
+  k: {
+    type: {
+      n: Number,
+      t: String,
+    },
+    alias: 'kind',
   },
 
   s: {
@@ -33,13 +42,30 @@ const SubTaskSchema = new mongoose.Schema({
     alias: 'parent',
     ref: 'Task',
   },
+
+  l: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Label'
+      }
+    ],
+    alias: 'label',
+  }
 })
 
-SubTaskSchema.statics.findAllAvailable = async function(userName, offset, number){
-  const dataList = await this.find({ s: { $in: ['全部', userName], }, u: { $ne: 0 } })
-    .populate('p')
+SubTaskSchema.statics.findAllAvailable = async function(userName, offset, number) {
+  const dataList = await this.find({ s: { $in: ['全部', userName], }, 'l.s': { $ne: 4 } })
+    .populate('p', 'p')
+    .populate('l')
     .skip(offset)
     .limit(number);
+
+  return dataList.map(item => item.toObject());
+}
+
+SubTaskSchema.statics.findOneAllSub = async function(_id) {
+  const dataList = await this.find({ p: _id }).populate('p l');
 
   return dataList.map(item => item.toObject());
 }
@@ -47,6 +73,7 @@ SubTaskSchema.statics.findAllAvailable = async function(userName, offset, number
 SubTaskSchema.statics.findMyDispatch = async function (userName, offset, number) {
   const dataList = await this.find()
     .populate({ path: 'p', match: { i: userName } })
+    .populate('l')
     .skip(offset)
     .limit(number);
 
@@ -55,34 +82,22 @@ SubTaskSchema.statics.findMyDispatch = async function (userName, offset, number)
 
 SubTaskSchema.statics.findMyOwn = async function(
   userName,
-  unFulfilledImgNum,
+  taskType,
   offset,
   number
 ) {
-  const compareOperation = unFulfilledImgNum === 'pending' ? '$ne' : '$eq';
+  const compareOperation = taskType === 'pending' ? '$ne' : '$eq';
   const dataList = await this.find({
     s: userName,
-    u: { [compareOperation]: 0 }
+    'l.s': { [compareOperation]: 4 }
   })
-    .populate('p')
+    .populate('p', 'p')
+    .populate('l')
     .skip(offset)
     .limit(number);
 
   return dataList.map(item => item.toObject());
 };
-
-
-// SubTaskSchema.statics.getPendingTaskNum = async function (parentTaskId, imgNum) {
-//   const num = await this.count({ p: parentTaskId, u: { $gt: 0 } });
-//
-//   return num;
-// }
-//
-// SubTaskSchema.statics.getFulfilledTaskNum = async function (parentTaskId) {
-//   const num = await this.count({ p: parentTaskId, u: 0 });
-//
-//   return num;
-// }
 
 SubTaskSchema.statics.getAllTask = async function (parentTaskId) {
   const dataList = await this.find({ p: parentTaskId });
@@ -96,12 +111,13 @@ SubTaskSchema.options.toObject.transform = function (doc, ret, options) {
     _id: ret._id,
     initialtorName: ret.p.initialtorName,
     imgFolderPath: ret.p.imgFolderPath,
-    imgArray: ret.p.imgArray,
     title: ret.t,
     desc: ret.d,
+    kind: ret.k,
     money: ret.m,
     expireTime: ret.e,
-    specifiedExecutor: ret.s
+    specifiedExecutor: ret.s,
+    label: ret.l
   }
 }
 

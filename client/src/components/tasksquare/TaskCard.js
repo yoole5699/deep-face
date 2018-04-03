@@ -31,7 +31,7 @@ const TaskCard = ({
   money,
   expireTime,
   progress,
-  imgArrayStatus,
+  label,
 }) => (
   <Card
     hoverable
@@ -39,13 +39,13 @@ const TaskCard = ({
       <span>报酬：{money}元/张</span>,
       <Button type="primary" size="small">
         <Link to={`/task/${_id}?type=profile`}>
-          {imgArrayStatus.length === 0 ? '开始任务' : '继续任务'}
+          {label.some(item => item.status > 0) ? '继续任务': '开始任务'}
         </Link>
       </Button>
     ]}
   >
     <Card.Meta
-      avatar={<Avatar alt={`${title}-封面`} src={`/${imgFolderPath}/${imgArray[0]}`} />}
+      avatar={<Avatar alt={`${title}-封面`} src={`/${imgFolderPath}/${label[0].name}`} />}
       title={<Link to={`/task/${_id}?type=intro`}>{title}</Link>}
       description={(
         <Description>
@@ -54,7 +54,7 @@ const TaskCard = ({
             title={desc}>
             <EllipsisText>{desc}</EllipsisText>
           </Tooltip>
-          图片数量: {imgArray.length}
+          图片数量: {label.length}
           <br />
           截止日期：{transferDateToString(expireTime)}
         </Description>

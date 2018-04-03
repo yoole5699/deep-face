@@ -1,5 +1,4 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import { inject, observer } from 'mobx-react';
 import { Form, Icon, Input, notification } from 'antd';
 
@@ -16,7 +15,6 @@ const LoginForm = ({ form, authStore, history }) => {
       if (!err) {
         console.log('Received values of form: ', formData);
         authStore.login(formData).then(() => {
-          // console.log(errors, '---errors---');
           if (!authStore.errors) {
             notification.success({
               message: '登录成功',
@@ -27,6 +25,10 @@ const LoginForm = ({ form, authStore, history }) => {
         });
       }
     });
+  }
+
+  const resetError = () => {
+    authStore.setError({ message: '' });
   }
 
   const { getFieldDecorator } = form;
@@ -60,22 +62,22 @@ const LoginForm = ({ form, authStore, history }) => {
         }
       </FormItem>
       <FormItem>
-        <FullButton htmlType="submit">登录</FullButton>
+        <FullButton htmlType="submit" loading={authStore.inProgress}>登录</FullButton>
         <Bottom>
           <Bottom.Link to="forget">忘记密码</Bottom.Link>
-          <Bottom.Link onClick={authStore.reset} to="register">免费注册</Bottom.Link>
+          <Bottom.Link onClick={resetError} to="register">免费注册</Bottom.Link>
         </Bottom>
       </FormItem>
     </Form>
   );
 }
 
-const WrappedLoginForm = inject('authStore')(observer(withRouter(Form.create()(LoginForm))));
+const WrappedLoginForm = inject('authStore')(Form.create()(observer(LoginForm)));
 
-const Login = () => (
+const Login = ({ history }) => (
   <Layout>
     <WrappedAlert />
-    <WrappedLoginForm />
+    <WrappedLoginForm history={history} />
   </Layout>
 )
 

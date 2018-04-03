@@ -20,9 +20,9 @@ const PureAvatar = styled.img`
 
 const statusColorMap = ['red', '#269abc', '#eea236', '#ac2925', '#4cae4c'];
 const Avatar = PureAvatar.withComponent(Checkbox).extend`
-  background-image: ${(props) => `url(${props.src})`};
-  background-repeat: round;
+  background: ${(props) => `url(${props.src}) no-repeat 4px/100px 110px`};
   border: 1px solid ${({ status }) => statusColorMap[status]};
+  border-radius: 5px;
 
   .ant-checkbox {
     left: 85px;
@@ -58,15 +58,15 @@ class ImgPicker extends React.Component {
   }
 
   render() {
-    const { imgArray, imgFolderPath, imgArrayStatus, store } = this.props;
+    const { imgFolderPath, dataSource, store } = this.props;
 
     return (
       <Fragment>
         <FlexRow>
           <Checkbox
-            dataSource={imgArray.map(item => `/${imgFolderPath}/${item}`)}
-            indeterminate={store.imgArray.length !== imgArray.length && store.imgArray.length > 0}
-            checked={store.imgArray.length === imgArray.length}
+            dataSource={dataSource.map(item => `/${imgFolderPath}/${item}`)}
+            indeterminate={store.imgArray.length !== dataSource.length && store.imgArray.length > 0}
+            checked={store.imgArray.length === dataSource.length}
             onChange={store.checkAllImg}
             >全选</Checkbox>
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -79,15 +79,14 @@ class ImgPicker extends React.Component {
         </FlexRow>
         <Layout>
             {
-              imgArray.map((item, index) => {
-                const imgStatus = (imgArrayStatus.find(data => data.name === item) || { status: 0 }).status;
-                const imgFullpath = `/${imgFolderPath}/${item}`;
+              dataSource.map((item, index) => {
+                const imgFullpath = `/${imgFolderPath}/${item.name}`;
 
                 return (
                   <Avatar
                     key={index}
                     src={imgFullpath}
-                    status={imgStatus}
+                    status={item.status}
                     checked={store.imgArray.includes(imgFullpath)}
                     onChange={store.checkImg}
                   />
@@ -95,7 +94,7 @@ class ImgPicker extends React.Component {
               })
             }
         </Layout>
-        <RightText>选中： {store.imgArray.length}/{imgArray.length}</RightText>
+        <RightText>选中： {store.imgArray.length}/{dataSource.length}</RightText>
       </Fragment>
     )
   }

@@ -4421,6 +4421,10 @@ mkdirp@0.5.1, mkdirp@0.5.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdi
   dependencies:
     minimist "0.0.8"
 
+mobx-react-router@^4.0.1:
+  version "4.0.1"
+  resolved "http://registry.npm.taobao.org/mobx-react-router/download/mobx-react-router-4.0.1.tgz#72f67b5c637d187595415500e8afa5cddb2231ab"
+
 mobx-react@^4.3.5:
   version "4.3.5"
   resolved "http://registry.npm.taobao.org/mobx-react/download/mobx-react-4.3.5.tgz#76853f2f2ef4a6f960c374bcd9f01e875929c04c"

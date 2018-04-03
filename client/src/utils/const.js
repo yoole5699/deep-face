@@ -6,10 +6,15 @@ const steps = [
   { title: '完成' }
 ];
 const TASK_STATUS = {
+  UN_START: 0,
   TEMP_SAVE: 1,
   WAITING_REVIEW: 2,
   REJECTED: 3,
   PASS: 4,
+};
+const TASK_KIND = {
+  1: '标点',
+  2: '画图'
 };
 const antithesesPointPos = [
   { t: 50, l: 50 },
@@ -47,5 +52,6 @@ export {
   passwordRegex,
   steps,
   TASK_STATUS,
+  TASK_KIND,
   antithesesPointPos,
 }

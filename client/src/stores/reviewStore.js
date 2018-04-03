@@ -4,7 +4,7 @@ import agent from 'utils/agent';
 import { getImgPos } from 'utils/index';
 
 const getTaskObj = (store) => {
-  const { imgFolderPath, _id, title  } = store.task;
+  const { imgFolderPath, _id, title, label } = store.task;
   const imgPos = getImgPos();
   const imgFullpath = store.imgArray[imgPos].src;
   const imgName = imgFullpath.substr(imgFolderPath.length + 2);
@@ -14,6 +14,7 @@ const getTaskObj = (store) => {
     title,
     _id,
     imgName,
+    labelItem: label.find(item => item.name === imgName),
   }
 }
 
@@ -143,8 +144,8 @@ class ReviewStore {
     return this.asyncAction(
       agent.Label.one(taskObj)
         .then(action(({ data }) => {
-          this.labelData = data.dataSet;
-          this.currentWidth = data.currentWidth;
+          this.labelData = taskObj.labelItem.data.dataSet;
+          this.currentWidth = taskObj.labelItem.data.currentWidth;
         }))
     )
   })

@@ -7,6 +7,7 @@ const TaskListCardLayout = styled.div`
   margin-bottom: 10px;
 
   display: flex;
+  flex-wrap: wrap;
   border: 1px solid rgb(245, 245, 245);
 
   &:hover {
