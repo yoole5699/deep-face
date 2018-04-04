@@ -7,6 +7,7 @@ import BlankList from 'components/tasksquare/BlankList';
 
 class TaskList extends React.Component {
   componentDidMount() {
+    this.props.commonStore.reset();
     this.props.commonStore.loadPubTasks();
   }
 

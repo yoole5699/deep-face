@@ -132,18 +132,16 @@ router.put('/label', async ctx => {
 
 router.post('/label/status', async ctx => {
   const { name } = ctx.state.user;
-  const { task_id, title, img_name, comment, status } = ctx.request.body;
-  const subTask = await SubTask.findById(task_id).populate('p');
-  const subTaskObj = subTask.toObject();
+  const { task_id, _id, specified_executor, initialtor_name, title, img_name, comment, status } = ctx.request.body;
 
-  if (subTaskObj.initialtorName !== name) {
+  if (initialtor_name !== name) {
     ctx.body = {
       code: 403,
       message: '你无权进行审核操作'
     }
   } else {
     await Label.updateLabelItemStatus(ctx.request.body);
-    await User.addMessage(subTaskObj.specified_executor, { comment, title, img_name, status, senderName: name, taskId: task_id, });
+    await User.addMessage(specified_executor, { comment, title, img_name, status, senderName: name, taskId: task_id, });
 
     ctx.body = {
       code: 200,

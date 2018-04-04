@@ -90,7 +90,7 @@ UserSchema.statics.deleteMessage = async function(userId, messageId) {
 }
 
 UserSchema.statics.addMessage = async function(userName, message) {
-  const rawRes = await this.updateOne({ name: userName }, { $push: { c: message }})
+  const rawRes = await this.updateOne({ n: userName }, { $push: { c: message }})
 
   return rawRes;
 }

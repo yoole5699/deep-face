@@ -26,9 +26,9 @@ const AntithesesSider = ({ reviewStore, history, imgPos }) => {
     return () => {
       reviewStore.updateHandler(status).then(() => {
         if (!reviewStore.error) {
-          history.push(isReviewOver ? `/task/${task._id}/admin?type=detail`:  `/task/${task._id}/review?imgPos=${imgPos + 1}`);
+          history.push(isReviewOver ? `/task/${task._id}?type=review`:  `/task/${task._id}/review?imgPos=${imgPos + 1}`);
           notification.success({ message: '审核成功', description: `已向${reviewStore.task.specifiedExecutor}发送审核信息` });
-          reviewStore.loadLabel();
+          !isReviewOver && reviewStore.loadLabel();
         } else {
           notification.error({ message: '审核失败', description: reviewStore.error });
         }

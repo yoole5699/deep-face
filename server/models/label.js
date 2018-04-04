@@ -40,6 +40,12 @@ const LabelSchema = new Schema({
     type: Number,
     default: 0,
     alias: 'status',
+  },
+
+  u: {
+    type: Date,
+    default: Date.now(),
+    alias: 'last_update_at'
   }
 })
 
@@ -52,14 +58,14 @@ LabelSchema.statics.findByName = async function(taskId, imgName){
   return label;
 }
 
-LabelSchema.statics.findBySubTaskId = async function(taskId) {
-  const label = await this.find({ t: taskId });
-
-  return label.map(item => ({
-    name: item.img_name,
-    status: item.status
-  }));
-}
+// LabelSchema.statics.findBySubTaskId = async function(taskId) {
+//   const label = await this.find({ t: taskId });
+//
+//   return label.map(item => ({
+//     name: item.img_name,
+//     status: item.status
+//   }));
+// }
 
 // LabelSchema.statics.getFulfilledImgNum = async function (taskId) {
 //   const num = await this.count({ t: taskId, s: RESOLVED });
@@ -103,16 +109,18 @@ LabelSchema.statics.updateLabelItem = async function(body) {
     {
       w: body.current_width || 500,
       d: body.data,
-      s: body.status
+      s: body.status,
+      u: Date.now(),
     }
   );
 };
 
 LabelSchema.statics.updateLabelItemStatus = async function(body) {
   await this.findOneAndUpdate(
-    { t: body.task_id, n: body.img_name },
+    { _id: body._id },
     {
-      s: body.status
+      s: body.status,
+      u: Date.now(),
     }
   );
 };
@@ -126,7 +134,8 @@ LabelSchema.options.toObject.transform = function (doc, ret, options) {
       dataSet: ret.d
     },
     name: ret.n,
-    status: ret.s
+    status: ret.s,
+    lastUpdateAt: ret.u
   }
 }
 

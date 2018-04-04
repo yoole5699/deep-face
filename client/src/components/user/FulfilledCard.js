@@ -11,17 +11,16 @@ import {
 
 const FulfilledCard = (({
   imgFolderPath,
-  imgArray,
+  label,
   title,
   desc,
   imgNum,
   money,
   expireTime,
-  finishedStatus,
-  parentTaskId
+  _id
 }) => (
   <Layout>
-    <Avatar src={`/${imgFolderPath}/${imgArray[0]}`} alt="封面"/>
+    <Avatar src={`/${imgFolderPath}/${label[0].name}`} alt="封面"/>
     <Meta>
       <h4>{title}</h4>
       <div>
@@ -36,9 +35,9 @@ const FulfilledCard = (({
     </Meta>
     <Action>
       <h4>完成时间</h4>
-      <Status>{finishedStatus}</Status>
+      <Status>{new Date(label.reduce((prev, cur) => Math.max(Date.parse(cur.lastUpdateAt), prev), 0)).toLocaleDateString()}</Status>
       <Button type="primary" size="large">
-        <Link to={`/task/${parentTaskId}`}>查看任务</Link>
+        <Link to={`/task/${_id}?type=profile`}>查看任务</Link>
       </Button>
     </Action>
   </Layout>

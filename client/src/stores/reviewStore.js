@@ -1,19 +1,21 @@
-import { extendObservable, action, reaction } from 'mobx';
+import { extendObservable, action, reaction, toJS } from 'mobx';
 import taskStore from './taskStore';
 import agent from 'utils/agent';
 import { getImgPos } from 'utils/index';
 
 const getTaskObj = (store) => {
-  const { imgFolderPath, _id, title, label } = store.task;
+  const { imgFolderPath, _id, title, initialtorName, specifiedExecutor, label } = store.task;
   const imgPos = getImgPos();
   const imgFullpath = store.imgArray[imgPos].src;
   const imgName = imgFullpath.substr(imgFolderPath.length + 2);
 
   return {
-    imgFolderPath,
     title,
     _id,
     imgName,
+    imgFolderPath,
+    initialtorName,
+    specifiedExecutor,
     labelItem: label.find(item => item.name === imgName),
   }
 }
@@ -144,7 +146,9 @@ class ReviewStore {
     return this.asyncAction(
       agent.Label.one(taskObj)
         .then(action(({ data }) => {
-          this.labelData = taskObj.labelItem.data.dataSet;
+          console.log(data, '---data---');
+          console.log(toJS(taskObj.labelItem), '---taskObj.labelItem.data---');
+          this.labelData = toJS(taskObj.labelItem.data.dataSet);
           this.currentWidth = taskObj.labelItem.data.currentWidth;
         }))
     )
@@ -155,11 +159,14 @@ class ReviewStore {
 
     return this.asyncAction(
       agent.Label.updateStatus({
+        status,
+        _id: taskObj.labelItem._id,
         task_id: taskObj._id,
         title: taskObj.title,
+        specified_executor: taskObj.specifiedExecutor,
+        initialtor_name: taskObj.initialtorName,
         img_name: taskObj.imgName,
         comment: this.comment,
-        status
       }).catch(
         action(({ message }) => {
           this.error = message;

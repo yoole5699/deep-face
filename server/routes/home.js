@@ -17,10 +17,6 @@ router.get('tasks', async ctx => {
   const { name } = ctx.state.user;
 
   const taskList = await SubTask.findAllAvailable(name, parseInt(offset) || 0, parseInt(number) || 5);
-  for (let i = 0; i < taskList.length; i++) {
-    const _id = taskList[i]._id;
-    taskList[i].imgArrayStatus = await Label.findBySubTaskId(_id);
-  }
 
   ctx.body = {
     code: 200,
@@ -45,9 +41,8 @@ router.get('mytasks', async ctx => {
       let pendingTaskNum = 0;
       let fulfilledTaskNum = 0;
       for (let j = 0; j < allSubTask.length; j++) {
-        const imgArrayStatus = await Label.findBySubTaskId(allSubTask[j]._id);
-        imgArrayStatus.every(item => item.status === RESOLVED) && imgArrayStatus === imgNum && fulfilledTaskNum++;
-        imgArrayStatus.length > 0 && pendingTaskNum++;
+        allSubTask[j].label.every(item => item.status === RESOLVED) && fulfilledTaskNum++;
+        allSubTask[j].label.some(item => item.status !== UN_START) && pendingTaskNum++;
       }
       taskList[i].allTaskNum = allSubTask.length;
       taskList[i].pendingTaskNum = pendingTaskNum;

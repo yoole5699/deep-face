@@ -35,10 +35,10 @@ const Point = styled.div`
 
 const PointWithNum = Point.extend`
   &::after {
-    content: ${({ content }) => content};
-    margin-left: 5px;
+    content: ${({ content }) => `'${content}'`};
+    margin-left: 12px;
     display: block;
-    line-height: 5px;
+    line-height: 12px;
     color: red;
   }
 `;

@@ -1,5 +1,12 @@
 const mongoose = require('mongoose')
 const LabelSchema = require('./label')
+const {
+  UN_START,
+  PENDING,
+  WAITING,
+  REJECTED,
+  RESOLVED,
+} = require('../utils/const');
 
 const SubTaskSchema = new mongoose.Schema({
   t: {
@@ -57,6 +64,7 @@ const SubTaskSchema = new mongoose.Schema({
 SubTaskSchema.statics.findAllAvailable = async function(userName, offset, number) {
   const dataList = await this.find({ s: { $in: ['全部', userName], }, 'l.s': { $ne: 4 } })
     .populate('p', 'p')
+    // TODO 高效过滤
     .populate('l')
     .skip(offset)
     .limit(number);
@@ -86,21 +94,25 @@ SubTaskSchema.statics.findMyOwn = async function(
   offset,
   number
 ) {
-  const compareOperation = taskType === 'pending' ? '$ne' : '$eq';
-  const dataList = await this.find({
-    s: userName,
-    'l.s': { [compareOperation]: 4 }
-  })
+  // const compareOperation = taskType === 'pending' ? '$ne' : '$eq';
+  const dataList = await this.find({ s: userName })
     .populate('p', 'p')
     .populate('l')
+    // .populate({ path: 'l', match: { 's': { [compareOperation]: RESOLVED } }})
     .skip(offset)
     .limit(number);
 
-  return dataList.map(item => item.toObject());
+  if (taskType === 'pending') {
+    return dataList.filter(data => data.label.some(item => item.status < RESOLVED)).map(item => item.toObject());
+  }
+  if (taskType === 'fulfilled') {
+    return dataList.filter(data => data.label.every(item => item.status === RESOLVED)).map(item => item.toObject());
+  }
+  // return dataList.map(item => item.toObject());
 };
 
 SubTaskSchema.statics.getAllTask = async function (parentTaskId) {
-  const dataList = await this.find({ p: parentTaskId });
+  const dataList = await this.find({ p: parentTaskId }).populate('l');
 
   return dataList;
 }
