@@ -23,6 +23,7 @@ class DrawStore {
   resetLabelData = action(() => {
     this.hasLabeled = false;
     this.labelData = undefined;
+    labelStore.current = 0;
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     this.currentWidth = 500;
     this.error = undefined;

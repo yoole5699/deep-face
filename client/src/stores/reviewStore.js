@@ -48,7 +48,7 @@ class ReviewStore {
   resetLabelData = action(() => {
     this.currentWidth = 500;
     this.currentRect = 0;
-    this.labelData.clear();
+    this.labelData = [];
     this.error = undefined;
   })
 
@@ -111,6 +111,19 @@ class ReviewStore {
     this.comment = event.target.value;
   })
 
+  setContext = action((ctx) => {
+    this.ctx = ctx;
+  })
+
+  renderCanvas = action(() => {
+    this.ctx.canvas.height = this.labelData.h;
+    this.ctx.canvas.width = this.labelData.w;
+    if (this.labelData.array) {
+      const imageData = new ImageData(new Uint8ClampedArray(this.labelData.array), this.labelData.w, this.labelData.h);
+      this.ctx.putImageData(imageData, 0, 0);
+    }
+  })
+
   checkAllImg = action((event) => {
     if (event.target.checked) {
       this.imgArray.replace(event.target.dataSource);
@@ -155,6 +168,7 @@ class ReviewStore {
         .then(action((data) => {
           this.labelData = toJS(taskObj.labelItem.data.dataSet || []);
           this.currentWidth = taskObj.labelItem.data.currentWidth;
+          if (this.ctx) { this.renderCanvas(); }
         }))
     );
   })

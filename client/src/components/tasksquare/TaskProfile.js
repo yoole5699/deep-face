@@ -1,11 +1,15 @@
 import React, { Fragment } from 'react';
-import { Link } from 'react-router-dom';
 import { inject, observer } from 'mobx-react';
 import { Divider, Button } from 'antd';
 import { ButtonArea } from './Layout';
 import { Meta } from 'components/user/CardLayout';
 import ImgPicker, { ImgListBlock } from './img-picker';
 import { TASK_STATUS } from 'utils/const';
+const BUTTON_TEXT = {
+  'intro': '选取图片进行标注',
+  'profile': '开始标注',
+  'review': '开始审核'
+};
 
 const TaskProfile = ({
   type,
@@ -20,26 +24,28 @@ const TaskProfile = ({
   initialtorName,
   specifiedExecutor,
 
+  history,
+
   labelStore,
   reviewStore,
 
   userStore: { currentUser }
 }) => {
-  const renderLink = () => {
-      switch (type) {
-        case 'intro':
-          return (<Link to={`/task/${_id}?type=profile`}>选取图片进行标注</Link>)
+  const jumpTo = () => {
+    switch (type) {
+      case 'intro':
+        return history.push(`/task/${_id}?type=profile`);
 
-        case 'profile':
-          return (<Link to={`/task/${_id}/label?imgPos=0`}>开始标注</Link>)
+      case 'profile':
+        return history.push(`/task/${_id}/label?imgPos=0`);
 
-        case 'review':
-          return (<Link to={`/task/${_id}/review?imgPos=0`}>开始审核</Link>)
+      case 'review':
+        return history.push(`/task/${_id}/review?imgPos=0`)
 
-        default:
-          return null
-      }
-  };
+      default:
+        return null
+    }
+  }
   const isAllImgPassed = labels.every(item => item.status === TASK_STATUS.PASS);
   let disabled = true;
   if (type === 'review') {
@@ -80,14 +86,15 @@ const TaskProfile = ({
       }
       <ButtonArea>
         <Button
+          onClick={jumpTo}
           disabled={disabled}
           size="large"
           type="primary"
         >
-          {renderLink()}
+          {BUTTON_TEXT[type]}
         </Button>
-        <Button size="large">
-          <Link to="/">返回首页</Link>
+        <Button size="large" onClick={() => { history.push('/') }}>
+          返回首页
         </Button>
       </ButtonArea>
     </Fragment>

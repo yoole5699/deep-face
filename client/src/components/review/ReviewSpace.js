@@ -8,19 +8,10 @@ class ReviewSpace extends React.Component {
     const { reviewStore } = this.props;
     reviewStore.loadLabel().then(() => {
       this.container.scrollTo(385, 450);
-      if (this.canvas && this.canvas.getContext) {
-        const { labelData = { w: 450, h: 450 } } = reviewStore;
-        this.canvas.height = labelData.h;
-        this.canvas.width = labelData.w;
-
-        // 开始画图
-        if (labelData.array) {
-          const imageData = new ImageData(new Uint8ClampedArray(labelData.array), labelData.w, labelData.h);
-          const ctx = this.canvas.getContext('2d');
-          ctx.putImageData(imageData, 0, 0);
-        }
-      }
     });
+    if (this.canvas.getContext) {
+      reviewStore.setContext(this.canvas.getContext('2d'));
+    }
   }
 
   renderPointList = (data, { current, draggingPointIndex }) => (
@@ -37,6 +28,10 @@ class ReviewSpace extends React.Component {
       />
     ))
   )
+
+  setContext = (target) => {
+    this.canvas = target;
+  }
 
   renderLabelData = (reviewStore) => {
     if (reviewStore.task.kind.t === "1") {
@@ -62,7 +57,7 @@ class ReviewSpace extends React.Component {
     }
 
     return (
-      <canvas ref={target => this.canvas = target} style={{ width: reviewStore.currentWidth, transition: 'all .3s linear' }}>
+      <canvas ref={this.setContext} style={{ width: reviewStore.currentWidth, transition: 'all .3s linear' }}>
         您的浏览器不支持canvas！
         <a href="https://browsehappy.com/">快来升级您的浏览器吧</a>
       </canvas>
