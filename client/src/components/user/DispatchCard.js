@@ -15,7 +15,7 @@ import { TASK_STATUS } from 'utils/const';
 const DispatchCard = ({
   imgFolderPath,
   imgArray,
-  label,
+  labels,
   title,
   desc,
   money,
@@ -24,18 +24,18 @@ const DispatchCard = ({
 }) => {
   let waitingReviewNum = 0;
   let unstartNum = 0;
-  label.forEach(item => {
+  labels.forEach(item => {
     item.status === TASK_STATUS.WAITING_REVIEW && waitingReviewNum++;
     item.status === TASK_STATUS.UN_START && unstartNum++;
   })
 
   return (
     <Layout>
-      <Avatar src={`/${imgFolderPath}/${label[0].name}`} alt="封面"/>
+      <Avatar src={`/${imgFolderPath}/${labels[0].name}`} alt="封面"/>
       <Meta>
         <h4>{title}</h4>
         <EllipsisText desc={desc} />
-        图片数量: {label.length}
+        图片数量: {labels.length}
         <br />
         报酬：{money}元/张
         <br />

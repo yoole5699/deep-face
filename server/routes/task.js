@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const User = require('../models/user')
 const Task = require('../models/task');
 const SubTask = require('../models/subtask');
-const Label = require('../models/label');
 const uploadFile = require('../utils/upload');
 const {
   UN_START,
@@ -63,6 +62,31 @@ router.get('/:_id', async ctx => {
   }
 })
 
+router.delete('/:_id', async ctx => {
+  const { _id } = ctx.params;
+  const { name } = ctx.state.user;
+  const { type } = ctx.query;
+  let ans = {};
+  if (type === 'origin') {
+    ans = await Task.deleteByIdAndName(_id, name);
+    // TODO是否要删掉全部子任务
+  } else {
+    ans = await SubTask.deleteByIdAndName(_id, name);
+  }
+
+  if (ans.n === 1) {
+    ctx.body = {
+      code: 200,
+      message: 'success',
+    };
+  } else {
+    ctx.body = {
+      code: 403,
+      message: '你没有权限进行删除操作'
+    }
+  }
+})
+
 router.get('/:_id/sub', async ctx => {
   const { _id } = ctx.params;
   let tasks = [];
@@ -98,31 +122,27 @@ router.post('/', async ctx => {
 router.post('/sub', async ctx => {
   const data = ctx.request.body;
   let subTaskItem = new SubTask(data);
-  const rawResult = await Label.insertMany(data.label, { rawResult: true});
-  if (rawResult.insertedCount > 0) {
-    subTaskItem.label = rawResult.ops;
-    await subTaskItem.save();
-    ctx.body = {
-      code: 200,
-      success: true,
-    };
-  }
+  await subTaskItem.save();
+  ctx.body = {
+    code: 200,
+    success: true,
+  };
 })
 
-async function updateTaskItem(taskId, userName) {
-  let taskItem = await SubTask.findOne({ _id: taskId });
-  if (taskItem.specified_executor !== userName && taskItem.specified_executor === '全部') {
-    taskItem.specified_executor = userName;
-    await taskItem.save();
-  }
-}
+// async function updateTaskItem(taskId, userName) {
+//   let taskItem = await SubTask.findOne({ _id: taskId });
+//   if (taskItem.specified_executor !== userName && taskItem.specified_executor === '全部') {
+//     taskItem.specified_executor = userName;
+//     await taskItem.save();
+//   }
+// }
 
 router.put('/label', async ctx => {
   const { name } = ctx.state.user;
   const label = ctx.request.body;
 
-  await Label.updateLabelItem(label);
-  await updateTaskItem(label.task_id, name);
+  await SubTask.updateLabelItem(label, name);
+  // await updateTaskItem(label.task_id, name);
 
   ctx.body = {
     code: 200,
@@ -140,7 +160,7 @@ router.post('/label/status', async ctx => {
       message: '你无权进行审核操作'
     }
   } else {
-    await Label.updateLabelItemStatus(ctx.request.body);
+    await SubTask.updateLabelItemStatus(ctx.request.body);
     await User.addMessage(specified_executor, { comment, title, img_name, status, senderName: name, taskId: task_id, });
 
     ctx.body = {

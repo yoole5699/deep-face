@@ -5,7 +5,7 @@ import { TASK_STATUS } from 'utils/const';
 import { getImgPos } from 'utils/index';
 
 const getTaskObj = (store) => {
-  const { imgFolderPath, _id, label  } = store.task;
+  const { imgFolderPath, _id, labels  } = store.task;
   const imgPos = getImgPos();
   const imgFullpath = store.imgArray[imgPos].src;
   const imgName = imgFullpath.substr(imgFolderPath.length + 2);
@@ -13,7 +13,7 @@ const getTaskObj = (store) => {
   return {
     imgName,
     imgFolderPath,
-    labelItem: label.find(item => item.name === imgName),
+    labelItem: labels.find(item => item.name === imgName),
     taskId: _id,
   }
 }
@@ -67,6 +67,7 @@ class LabelStore {
   resetTask = action(() => {
     this.resetLabelData();
     this.isLoading = true;
+    this.task = undefined;
   })
 
   resetStore = action(() => {
@@ -98,7 +99,7 @@ class LabelStore {
         y: item.y * zoomInRatio,
         w: item.w * zoomInRatio,
         h: item.h * zoomInRatio,
-        p: item.p.map((point) => ({ x: point.x * zoomInRatio, y: point.y * zoomInRatio }))
+        p: item.p.map((point) => ({ x: point.x * zoomInRatio, y: point.y * zoomInRatio, s: point.status }))
       }))
     );
   })
@@ -114,7 +115,7 @@ class LabelStore {
         y: item.y * zoomOutRatio,
         w: item.w * zoomOutRatio,
         h: item.h * zoomOutRatio,
-        p: item.p.map((point) => ({ x: point.x * zoomOutRatio, y: point.y * zoomOutRatio }))
+        p: item.p.map((point) => ({ x: point.x * zoomOutRatio, y: point.y * zoomOutRatio, s: point.status }))
       }))
     );
   })
@@ -124,10 +125,13 @@ class LabelStore {
       const { offsetX, offsetY } = event.nativeEvent;
       let pointIndex = -1;
       let rectIndex = -1;
-      this.labelData.forEach(({ p }, index) => {
-        pointIndex = p.findIndex(item => Math.abs(item.x - offsetX) <= 12 && Math.abs(item.y - offsetY) <= 12);
-        pointIndex >= 0 && (rectIndex = index);
-      })
+      for (var i = 0; i < this.labelData.length; i++) {
+        pointIndex = this.labelData[i].p.findIndex(item => Math.abs(item.x - offsetX) <= 12 && Math.abs(item.y - offsetY) <= 12);
+        if (pointIndex >= 0) {
+          rectIndex = i;
+          break;
+        }
+      }
 
       if (pointIndex >= 0 && rectIndex >= 0) {
         this.contextMenu = {
@@ -252,7 +256,7 @@ class LabelStore {
         break;
 
       case 2:
-        this.saveHandler(TASK_STATUS.WAITING_REVIEW);
+        this.saveHandler(TASK_STATUS.WAITING_REVIEW, this);
         break;
 
       case 3:
@@ -309,17 +313,21 @@ class LabelStore {
     }
   })
 
-  loadLabel = action(() => {
+  initLabel = action((label) => {
+    this.labelData = label.data.dataSet || [];
+    this.currentWidth = label.data.currentWidth;
+    this.currentRect = this.labelData.length;
+  })
+
+  loadLabel = action((store) => {
     const taskObj = getTaskObj(this);
     const suffix = taskObj.imgName.lastIndexOf('.');
     const labelFilePath = taskObj.imgFolderPath + '/' +  taskObj.imgName.substring(0, suffix) + '.json';
     return this.asyncAction(
       agent.Label.file(labelFilePath, this.task._id)
         .then(action((data) => {
-          this.labelData = taskObj.labelItem.data.dataSet;
-          this.currentWidth = taskObj.labelItem.data.currentWidth;
-          this.currentRect = this.labelData.length;
-          console.log(data, '---data---');
+          store.initLabel(taskObj.labelItem);
+          // console.log(data, '---data---');
         }))
     )
     // return this.asyncAction(
@@ -338,8 +346,9 @@ class LabelStore {
     // )
   })
 
-  saveHandler = action(status => {
+  saveHandler = action((status, store) => {
     const taskObj = getTaskObj(this);
+    console.log(toJS(store), '---toJs(store)---');
 
     return this.asyncAction(
       agent.Label.update({
@@ -347,26 +356,26 @@ class LabelStore {
         _id: taskObj.labelItem._id,
         task_id: taskObj.taskId,
         img_name: taskObj.imgName,
-        current_width: this.currentWidth,
-        data: toJS(this.labelData),
+        current_width: store.currentWidth,
+        data: toJS(store.labelData),
       })
         .then(
           action(() => {
             taskObj.labelItem.status = status;
-            taskObj.labelItem.data.dataSet = this.labelData;
-            taskObj.labelItem.data.currentWidth = this.currentWidth;
+            // taskObj.labelItem.data.dataSet = store.labelData;
+            // taskObj.labelItem.data.currentWidth = store.currentWidth;
           })
         )
         .catch(
           action(({ message }) => {
-            this.error = message;
+            store.error = message;
           })
         )
     );
   });
 
-  tempSaveHandler = action(() => {
-    return this.saveHandler(TASK_STATUS.TEMP_SAVE);
+  tempSaveHandler = action((store) => {
+    return this.saveHandler(TASK_STATUS.TEMP_SAVE, store);
   })
 }
 

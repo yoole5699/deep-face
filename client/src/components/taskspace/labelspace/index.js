@@ -16,7 +16,8 @@ const menu = ({ contextMenu: { rectIndex, pointIndex }, labelData, setPointStatu
 class LabelSpace extends React.Component {
 
   componentDidMount() {
-    this.props.labelStore.loadLabel();
+    const { labelStore } = this.props;
+    labelStore.loadLabel(labelStore);
     this.container.scrollTo(450, 450);
   }
 

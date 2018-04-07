@@ -14,8 +14,8 @@ const TaskDescribtion = ({ taskStore, _id, }) => {
   const dataSource = taskStore.getTask(_id, 'dispatch');
 
   if (dataSource) {
-    const { title, desc, money, expireTime, label } = dataSource;
-    const countResult = countImgStatus(label);
+    const { title, desc, money, expireTime, labels } = dataSource;
+    const countResult = countImgStatus(labels);
 
     return (
       <Layout>
@@ -28,7 +28,7 @@ const TaskDescribtion = ({ taskStore, _id, }) => {
             {`报酬: ${money} 元/张`}
           </div>
           <div>
-            {`任务进度: ${label.filter(item => item.status === TASK_STATUS.PASS || item.status === TASK_STATUS.WAITING_REVIEW).length} / ${label.length}`}
+            {`任务进度: ${labels.filter(item => item.status === TASK_STATUS.PASS || item.status === TASK_STATUS.WAITING_REVIEW).length} / ${labels.length}`}
             <br />
             {`未开始图片数: ${countResult[0]}`}
             <br />

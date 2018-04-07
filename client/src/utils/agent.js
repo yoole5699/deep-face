@@ -64,6 +64,7 @@ const User = {
 const MyTask = {
   all: (type, offset, number) => requests.get(`/mytasks?type=${type}&offset=${offset}&number=${number}`),
   one: (_id, type) => requests.get(`/task/${_id}?type=${type}`),
+  delOne: (_id, type) => requests.del(`/task/${_id}?type=${type}`),
   oneAllSub: (_id) => requests.get(`/task/${_id}/sub`)
 }
 

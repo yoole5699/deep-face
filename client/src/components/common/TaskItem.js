@@ -44,7 +44,7 @@ class TaskItem extends React.PureComponent {
   }
 
   render() {
-    const { title,  expireTime, _id, label } = this.props;
+    const { title,  expireTime, _id, labels } = this.props;
     const { hover } = this.state;
 
     return (
@@ -59,7 +59,7 @@ class TaskItem extends React.PureComponent {
         <Icon type="check-circle-o" style={{ color: 'white', fontSize: 30, marginRight: 20, verticalAlign: 'top' }}/>
         <div style={{ flexGrow: 1, textAlign: 'left', display: 'inline-block' }}>
           <h3 style={{ color: 'white' }}>{title}</h3>
-          <div style={{ color: 'rgb(187, 187, 187)'}}>任务进度:{label.filter(item => item.status === TASK_STATUS.PASS || item.status === TASK_STATUS.WAITING_REVIEW).length + '/' + label.length}</div>
+          <div style={{ color: 'rgb(187, 187, 187)'}}>任务进度:{labels.filter(item => item.status === TASK_STATUS.PASS || item.status === TASK_STATUS.WAITING_REVIEW).length + '/' + labels.length}</div>
           <div style={{ color: 'rgb(187, 187, 187)'}}>截止时间:{transferDateToString(expireTime)}</div>
         </div>
       </Layout>

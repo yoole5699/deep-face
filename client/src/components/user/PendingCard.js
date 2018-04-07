@@ -12,7 +12,7 @@ import { TASK_STATUS } from 'utils/const';
 
 const PendingCard = (({
   imgFolderPath,
-  label,
+  labels,
   title,
   desc,
   imgNum,
@@ -21,7 +21,7 @@ const PendingCard = (({
   _id
 }) => (
   <Layout>
-    <Avatar src={`/${imgFolderPath}/${label[0].name}`} alt="封面"/>
+    <Avatar src={`/${imgFolderPath}/${labels[0].name}`} alt="封面"/>
     <Meta>
       <h4>{title}</h4>
       <div>
@@ -36,7 +36,7 @@ const PendingCard = (({
     </Meta>
     <Action>
       <h4>标注进度</h4>
-      <Status>{Math.round(label.filter(item => item.status === TASK_STATUS.PASS || item.status === TASK_STATUS.WAITING_REVIEW).length / label.length * 100) + '%'}</Status>
+      <Status>{Math.round(labels.filter(item => item.status === TASK_STATUS.PASS || item.status === TASK_STATUS.WAITING_REVIEW).length / labels.length * 100) + '%'}</Status>
       <Button type="primary" size="large">
         <Link to={`/task/${_id}?type=profile`}>继续任务</Link>
       </Button>

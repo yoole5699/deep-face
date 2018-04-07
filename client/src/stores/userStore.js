@@ -48,7 +48,11 @@ class UserStore {
 
   deleteMessage = action((messageID) => {
     this.currentUser.comments = this.currentUser.comments.filter(item => item._id !== messageID);
-    agent.User.deleteMessage(messageID);
+    return agent.User.deleteMessage(messageID)
+      .catch(action(err => {
+        this.pullUser();
+        throw err;
+      }));
   })
 
   forgetUser = action(() => {

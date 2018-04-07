@@ -12,6 +12,7 @@ import { Provider } from 'mobx-react';
 import { RouterStore, syncHistoryWithStore } from 'mobx-react-router';
 import reviewStore from './stores/reviewStore';
 import labelStore from './stores/labelStore';
+import drawStore from './stores/drawStore';
 import taskStore from './stores/taskStore';
 import commonStore from './stores/commonStore';
 import userStore from './stores/userStore';
@@ -22,6 +23,7 @@ const routingStore = new RouterStore();
 
 const stores = {
   reviewStore,
+  drawStore,
   labelStore,
   taskStore,
   commonStore,

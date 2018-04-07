@@ -25,8 +25,8 @@ const Avatar = PureAvatar.withComponent(Checkbox).extend`
   border-radius: 5px;
 
   .ant-checkbox {
-    left: 85px;
-    top: 95px;
+    left: 87px;
+    top: 94px;
   }
 `;
 
@@ -64,7 +64,7 @@ class ImgPicker extends React.Component {
       <Fragment>
         <FlexRow>
           <Checkbox
-            dataSource={dataSource.map(item => `/${imgFolderPath}/${item}`)}
+            dataSource={dataSource.map(item => `/${imgFolderPath}/${item.name}`)}
             indeterminate={store.imgArray.length !== dataSource.length && store.imgArray.length > 0}
             checked={store.imgArray.length === dataSource.length}
             onChange={store.checkAllImg}

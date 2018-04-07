@@ -2,10 +2,11 @@ import React, { Fragment } from 'react';
 import { Spin } from 'antd';
 import { inject, observer } from 'mobx-react';
 import { Main } from 'components/user/Layout';
-import { LabelSpace, ButtonArea, LabelResult } from 'components/taskspace';
+import { LabelSpace, DrawBoard, DrawBoardButtonArea, ButtonArea, LabelResult } from 'components/taskspace';
 import { getImgPos } from 'utils/index';
 
 class EditingCard extends React.Component {
+
   componentDidMount() {
     const { labelStore } = this.props;
     if (labelStore.imgArray.length === 0) {
@@ -36,6 +37,45 @@ class EditingCard extends React.Component {
     )
   }
 
+  renderMain = (_id, imgPos, history, isTaskReady, current, task, labelStore) => {
+    if (isTaskReady) {
+      if (current === 3) {
+        return (
+          <LabelResult
+            labelStore={labelStore}
+            _id={_id}
+            imgPos={imgPos}
+            history={history}
+          />
+        );
+      } else if (task.kind.t === '1') {
+        return (
+          <Fragment>
+            <LabelSpace
+              labelStore={labelStore}
+              imgPos={imgPos}
+            />
+            <ButtonArea
+              resetHandler={labelStore.resetLabelData}
+              undoHandler={labelStore.undoHandler}
+              zoomInHandler={labelStore.zoomInImgScale}
+              zoomOutHandler={labelStore.zoomOutImgScale}
+            />
+          </Fragment>
+        )
+      } else {
+        return (
+          <Fragment>
+            <DrawBoard
+              imgPos={imgPos}
+            />
+            <DrawBoardButtonArea />
+          </Fragment>
+        )
+      }
+    }
+  }
+
   render() {
     const { labelStore, match: { params: { _id } }, history } = this.props;
     const {
@@ -43,10 +83,6 @@ class EditingCard extends React.Component {
       current,
       imgArray,
       isLoading,
-      resetLabelData,
-      undoHandler,
-      zoomInImgScale,
-      zoomOutImgScale,
     } = labelStore;
     const imgPos = getImgPos();
     const isTaskReady = task && imgArray[imgPos].src;
@@ -61,32 +97,7 @@ class EditingCard extends React.Component {
                 : '加载中....'
             }
           </h2>
-            {
-              current === 3
-                ? (
-                    <LabelResult
-                      labelStore={labelStore}
-                      _id={_id}
-                      imgPos={imgPos}
-                      history={history}
-                    />
-                  )
-                : isTaskReady
-                    && (
-                         <Fragment>
-                           <LabelSpace
-                             labelStore={labelStore}
-                             imgPos={imgPos}
-                           />
-                           <ButtonArea
-                             resetHandler={resetLabelData}
-                             undoHandler={undoHandler}
-                             zoomInHandler={zoomInImgScale}
-                             zoomOutHandler={zoomOutImgScale}
-                           />
-                         </Fragment>
-                       )
-            }
+          {this.renderMain(_id, imgPos, history, isTaskReady, current, task, labelStore)}
         </Main>
       </Spin>
     )

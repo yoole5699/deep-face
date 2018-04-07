@@ -14,7 +14,7 @@ const TaskProfile = ({
   title,
   desc,
   imgFolderPath,
-  label,
+  labels,
   money,
   expireTime,
   initialtorName,
@@ -40,7 +40,7 @@ const TaskProfile = ({
           return null
       }
   };
-  const isAllImgPassed = label.every(item => item.status === TASK_STATUS.PASS);
+  const isAllImgPassed = labels.every(item => item.status === TASK_STATUS.PASS);
   let disabled = true;
   if (type === 'review') {
     disabled = reviewStore.imgArray.length === 0 || initialtorName !== currentUser.userName;
@@ -56,7 +56,7 @@ const TaskProfile = ({
       <Meta type="profile">
         <h2>{title}</h2>
         {desc}
-        图片数量: {label.length}
+        图片数量: {labels.length}
         <br />
         报酬：{money}元/张
         <br />
@@ -67,13 +67,13 @@ const TaskProfile = ({
         type === 'intro'
           ? (
             <ImgListBlock
-              dataSource={label.map(item => `/${imgFolderPath}/${item.name}`)}
+              dataSource={labels.map(item => `/${imgFolderPath}/${item.name}`)}
             />
           )
           : (
               <ImgPicker
                 imgFolderPath={imgFolderPath}
-                dataSource={label}
+                dataSource={labels}
                 store={type === 'profile' ? labelStore : reviewStore}
               />
             )

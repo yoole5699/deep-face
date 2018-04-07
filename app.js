@@ -24,7 +24,8 @@ const app = new Koa()
 // middlewares
 app.use(require('koa-static')(__dirname + '/public'))
 app.use(bodyparser({
-  enableTypes:['json', 'form', 'text']
+  enableTypes:['json', 'form', 'text'],
+  jsonLimit: '10mb'
 }))
 app.use(cors())
 app.use(json())

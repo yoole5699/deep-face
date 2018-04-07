@@ -47,16 +47,16 @@ const LabelSchema = new Schema({
     default: Date.now(),
     alias: 'last_update_at'
   }
-})
+});
 
-LabelSchema.statics.findByName = async function(taskId, imgName){
-  const label = await this.findOne({
-    t: taskId,
-    n: imgName,
-  })
-
-  return label;
-}
+// LabelSchema.statics.findByName = async function(taskId, imgName){
+//   const label = await this.findOne({
+//     t: taskId,
+//     n: imgName,
+//   })
+//
+//   return label;
+// }
 
 // LabelSchema.statics.findBySubTaskId = async function(taskId) {
 //   const label = await this.find({ t: taskId });
@@ -139,6 +139,6 @@ LabelSchema.options.toObject.transform = function (doc, ret, options) {
   }
 }
 
-const Label = mongoose.model('Label', LabelSchema)
+// const Label = mongoose.model('Label', LabelSchema)
 
-module.exports = Label
+module.exports = LabelSchema

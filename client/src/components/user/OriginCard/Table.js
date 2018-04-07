@@ -43,9 +43,9 @@ const Table = ({ dataSource, deleteRow }) => (
       <TdCell>操作</TdCell>
     </HeadRow>
     {
-      dataSource.map(({ _id, title, specifiedExecutor, label, kind }) => {
-        const countResult = countImgStatus(label);
-        const isTaskCompleted = countResult[4] === label.length;
+      dataSource.map(({ _id, title, specifiedExecutor, labels, kind }) => {
+        const countResult = countImgStatus(labels);
+        const isTaskCompleted = countResult[4] === labels.length;
         let Row = isTaskCompleted ? CompletedRow : PendingRow;
 
         return (

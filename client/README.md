@@ -1533,7 +1533,7 @@ If you use [Visual Studio Code](https://code.visualstudio.com), there is a [Jest
 Usually, in an app, you have a lot of UI components, and each of them has many different states.
 For an example, a simple button component could have following states:
 
-* In a regular state, with a text label.
+* In a regular state, with a text labels.
 * In the disabled mode.
 * In a loading state.
 

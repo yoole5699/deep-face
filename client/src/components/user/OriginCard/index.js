@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from 'antd';
+import { Button, notification } from 'antd';
 import {
   Avatar,
   Meta,
@@ -46,6 +46,10 @@ class OriginCard extends React.Component {
     this.setState({
       tasks: this.state.tasks.filter(item => item._id !== _id)
     });
+    this.props.deleteTask(_id, 'dispatch')
+      .catch((err) => {
+        notification.error({ message: '删除失败', description: err });
+      })
   }
 
   render() {

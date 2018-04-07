@@ -83,32 +83,61 @@ const Tip = ({ resetLabelData }) => (
   </Main>
 );
 
+const DrawTip = ({ resetLabelData }) => (
+  <Main>
+    <TopArea>
+      <p>检查并且确认：</p>
+      检查标记的区域，确认无误后点击完成，提交这一次标记。
+    </TopArea>
+    如果对结果不满意，您可以<a onClick={resetLabelData}>重新标注</a>这张图。
+  </Main>
+);
+
 const TipArea = ({
   labelStore: {
-    current,
+    task = { kind: { t: "1" } },
     labelData,
     imgArray,
     currentWidth,
+    current,
     currentRect,
     changeCurrentRect,
     resetLabelData
-  }
+  },
+  drawStore,
 }) => {
   const imgPos = getImgPos();
+
+  if (task.kind.t === "1") {
+    return (
+      <Fragment>
+        {current === 0 && '左上方为起点,右下方为终点'}
+        {current === 1 && (
+          <Rule
+            labelData={labelData}
+            imgArray={imgArray}
+            imgPos={imgPos}
+            currentWidth={currentWidth}
+            currentRect={currentRect}
+            changeCurrentRect={changeCurrentRect}
+          />
+        )}
+        {current === 2 && <Tip resetLabelData={resetLabelData} />}
+      </Fragment>
+    )
+  }
+
   return (
     <Fragment>
-      {current === 0 && '左上方为起点,右下方为终点'}
+      {current === 0 && '请在工作区下方选择要对画布进行的转换，第一步之后无法再放大缩小画布'}
       {current === 1 && (
-        <Rule
-          labelData={labelData}
-          imgArray={imgArray}
-          imgPos={imgPos}
-          currentWidth={currentWidth}
-          currentRect={currentRect}
-          changeCurrentRect={changeCurrentRect}
-        />
+        <Main>
+          <TopArea>
+            {task.desc}
+          </TopArea>
+        </Main>
       )}
-      {current === 2 && <Tip resetLabelData={resetLabelData} />}
+      {current === 2 && <DrawTip resetLabelData={drawStore.resetLabelData} />}
     </Fragment>
   )
 };

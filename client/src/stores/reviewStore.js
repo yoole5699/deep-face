@@ -4,7 +4,7 @@ import agent from 'utils/agent';
 import { getImgPos } from 'utils/index';
 
 const getTaskObj = (store) => {
-  const { imgFolderPath, _id, title, initialtorName, specifiedExecutor, label } = store.task;
+  const { imgFolderPath, _id, title, initialtorName, specifiedExecutor, labels } = store.task;
   const imgPos = getImgPos();
   const imgFullpath = store.imgArray[imgPos].src;
   const imgName = imgFullpath.substr(imgFolderPath.length + 2);
@@ -16,7 +16,7 @@ const getTaskObj = (store) => {
     imgFolderPath,
     initialtorName,
     specifiedExecutor,
-    labelItem: label.find(item => item.name === imgName),
+    labelItem: labels.find(item => item.name === imgName),
   }
 }
 
@@ -66,33 +66,37 @@ class ReviewStore {
   zoomInImgScale = action(() => {
     const beforeCurrentWidth = this.currentWidth;
     this.currentWidth -= 50;
-    const zoomInRatio = this.currentWidth / beforeCurrentWidth;
 
-    this.labelData.replace(
-      this.labelData.map(item => ({
-        x: item.x * zoomInRatio,
-        y: item.y * zoomInRatio,
-        w: item.w * zoomInRatio,
-        h: item.h * zoomInRatio,
-        p: item.p.map((point) => ({ x: point.x * zoomInRatio, y: point.y * zoomInRatio }))
-      }))
-    );
+    if (this.task.kind.t === "1") {
+      const zoomInRatio = this.currentWidth / beforeCurrentWidth;
+      this.labelData.replace(
+        this.labelData.map(item => ({
+          x: item.x * zoomInRatio,
+          y: item.y * zoomInRatio,
+          w: item.w * zoomInRatio,
+          h: item.h * zoomInRatio,
+          p: item.p.map((point) => ({ x: point.x * zoomInRatio, y: point.y * zoomInRatio }))
+        }))
+      );
+    }
   })
 
   zoomOutImgScale = action(() => {
     const beforeCurrentWidth = this.currentWidth;
     this.currentWidth += 50;
-    const zoomOutRatio = this.currentWidth / beforeCurrentWidth;
 
-    this.labelData.replace(
-      this.labelData.map(item => ({
-        x: item.x * zoomOutRatio,
-        y: item.y * zoomOutRatio,
-        w: item.w * zoomOutRatio,
-        h: item.h * zoomOutRatio,
-        p: item.p.map((point) => ({ x: point.x * zoomOutRatio, y: point.y * zoomOutRatio }))
-      }))
-    );
+    if (this.task.kind.t === "1") {
+      const zoomOutRatio = this.currentWidth / beforeCurrentWidth;
+      this.labelData.replace(
+        this.labelData.map(item => ({
+          x: item.x * zoomOutRatio,
+          y: item.y * zoomOutRatio,
+          w: item.w * zoomOutRatio,
+          h: item.h * zoomOutRatio,
+          p: item.p.map((point) => ({ x: point.x * zoomOutRatio, y: point.y * zoomOutRatio }))
+        }))
+      );
+    }
   })
 
   changeCurrentRect = action((index) => {
@@ -125,6 +129,7 @@ class ReviewStore {
 
   asyncAction = action((promise) => {
     this.isLoading = true;
+    this.error = undefined;
     return promise.finally(action((data) => {
       this.isLoading = false;
     }));
@@ -142,16 +147,16 @@ class ReviewStore {
 
   loadLabel = action(() => {
     const taskObj = getTaskObj(this);
+    const suffix = taskObj.imgName.lastIndexOf('.');
+    const labelFilePath = taskObj.imgFolderPath + '/' +  taskObj.imgName.substring(0, suffix) + '.json';
 
     return this.asyncAction(
-      agent.Label.one(taskObj)
-        .then(action(({ data }) => {
-          console.log(data, '---data---');
-          console.log(toJS(taskObj.labelItem), '---taskObj.labelItem.data---');
-          this.labelData = toJS(taskObj.labelItem.data.dataSet);
+      agent.Label.file(labelFilePath, this.task._id)
+        .then(action((data) => {
+          this.labelData = toJS(taskObj.labelItem.data.dataSet || []);
           this.currentWidth = taskObj.labelItem.data.currentWidth;
         }))
-    )
+    );
   })
 
   updateHandler = action(status => {

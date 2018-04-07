@@ -6,13 +6,14 @@ import {
   AntithesesSider,
   EditingCard,
 } from './taskspace';
+import BadgeAvatar from '../components/common/Avatar';
 
 const { Header, Sider, Content } = Layout;
 
 const TaskSpace = (props) => (
   <Layout>
     <Header>
-      <HeaderNav />
+      <HeaderNav><BadgeAvatar /></HeaderNav>
     </Header>
     <TaskSteps />
     <Layout>

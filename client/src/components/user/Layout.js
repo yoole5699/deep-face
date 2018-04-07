@@ -64,7 +64,7 @@ const StrongLable = CountLabel.extend`
   font-weight: 700;
 `;
 
-const Total = ({ label, value }) => (
+const Total = ({ labels, value }) => (
   <TotalLayout>
     <StrongLable>当前可兑换积分:<TotalValue>{value}</TotalValue></StrongLable>
     <Button type="primary" size="large" ghost>积分兑换</Button>

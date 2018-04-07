@@ -51,21 +51,22 @@ const SubTaskSchema = new mongoose.Schema({
   },
 
   l: {
-    type: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Label'
-      }
-    ],
-    alias: 'label',
+    // type: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'Label'
+    //   }
+    // ],
+    type: [ LabelSchema ],
+    alias: 'labels',
   }
 })
 
 SubTaskSchema.statics.findAllAvailable = async function(userName, offset, number) {
-  const dataList = await this.find({ s: { $in: ['全部', userName], }, 'l.s': { $ne: 4 } })
+  const dataList = await this.find()
+    .where('s').in(['全部', userName])
+    .where('l.s').ne(4)
     .populate('p', 'p')
-    // TODO 高效过滤
-    .populate('l')
     .skip(offset)
     .limit(number);
 
@@ -73,15 +74,15 @@ SubTaskSchema.statics.findAllAvailable = async function(userName, offset, number
 }
 
 SubTaskSchema.statics.findOneAllSub = async function(_id) {
-  const dataList = await this.find({ p: _id }).populate('p l');
+  const dataList = await this.find({ p: _id }).populate('p');
 
   return dataList.map(item => item.toObject());
 }
 
-SubTaskSchema.statics.findMyDispatch = async function (userName, offset, number) {
+SubTaskSchema.statics.findMyDispatch = async function (pIdList, offset, number) {
   const dataList = await this.find()
-    .populate({ path: 'p', match: { i: userName } })
-    .populate('l')
+    .where('p').in(pIdList)
+    .populate('p')
     .skip(offset)
     .limit(number);
 
@@ -94,27 +95,57 @@ SubTaskSchema.statics.findMyOwn = async function(
   offset,
   number
 ) {
-  // const compareOperation = taskType === 'pending' ? '$ne' : '$eq';
-  const dataList = await this.find({ s: userName })
+  const compareOperation = taskType === 'pending' ? '$ne' : '$eq';
+  const dataList = await this.find({ s: userName, 'l.s': { [compareOperation]: RESOLVED } })
     .populate('p', 'p')
-    .populate('l')
-    // .populate({ path: 'l', match: { 's': { [compareOperation]: RESOLVED } }})
     .skip(offset)
     .limit(number);
 
-  if (taskType === 'pending') {
-    return dataList.filter(data => data.label.some(item => item.status < RESOLVED)).map(item => item.toObject());
-  }
-  if (taskType === 'fulfilled') {
-    return dataList.filter(data => data.label.every(item => item.status === RESOLVED)).map(item => item.toObject());
-  }
-  // return dataList.map(item => item.toObject());
+  return dataList.map(item => item.toObject());
 };
 
 SubTaskSchema.statics.getAllTask = async function (parentTaskId) {
-  const dataList = await this.find({ p: parentTaskId }).populate('l');
+  const dataList = await this.find({ p: parentTaskId });
 
   return dataList;
+}
+
+SubTaskSchema.statics.updateLabelItem = async function(body, userName) {
+  await this.updateOne(
+    { _id: body.task_id, 'l._id': body._id, s: { $in: ['全部', userName] } },
+    {
+      $set: {
+        's': userName,
+        'l.$.w': body.current_width || 500,
+        'l.$.d': body.data,
+        'l.$.s': body.status,
+        'l.$.u': Date.now(),
+      },
+    }
+  )
+}
+
+SubTaskSchema.statics.updateLabelItemStatus = async function(body) {
+  await this.updateOne(
+    { _id: body.task_id, 'l._id': body._id },
+    {
+      $set: {
+        'l.$.s': body.status,
+        'l.$.u': Date.now(),
+      },
+    }
+  )
+}
+
+SubTaskSchema.statics.deleteByIdAndName = async function (_id, userName) {
+  // { n: , ok: }
+  let rawRes = await this.deleteOne({ _id, s: userName });
+  if (rawRes.n === 0) {
+    const task = await this.findOne({ _id }).populate('p');
+    rawRes = task.initialtorName === userName ? await this.deleteOne({ _id }) : rawRes;
+  }
+
+  return rawRes;
 }
 
 if (!SubTaskSchema.options.toObject) SubTaskSchema.options.toObject = {};
@@ -129,7 +160,7 @@ SubTaskSchema.options.toObject.transform = function (doc, ret, options) {
     money: ret.m,
     expireTime: ret.e,
     specifiedExecutor: ret.s,
-    label: ret.l
+    labels: ret.l
   }
 }
 

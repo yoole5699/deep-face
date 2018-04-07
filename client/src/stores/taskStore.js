@@ -20,6 +20,15 @@ export class TaskStore {
     extendObservable(this, data);
   }
 
+  reset() {
+    ['pending', 'fulfilled', 'origin', 'dispatch'].forEach(item => {
+      this[`is_${item}_loading`] = false;
+      this[`${item}_offset`] = 0;
+      this[`has_${item}_task_unfetch`] = true;
+      this[`${item}_task`].clear();
+    })
+  }
+
   getTask(_id, type) {
     return this[`${type}_task`].get(_id);
   }
@@ -33,23 +42,23 @@ export class TaskStore {
   })
 
   loadTask = action((_id, type) => {
-    if (!this[`${type}_task`].get(_id)) {
-      return this.asyncAction(
-        agent.MyTask.one(_id, type)
-          .then(action(({ data }) => {
-            this[`${type}_task`].set(_id, data);
-          })),
-        type
-      );
-    }
+    return this.asyncAction(
+      agent.MyTask.one(_id, type)
+        .then(action(({ data }) => {
+          this[`${type}_task`].set(_id, data);
+        })),
+      type
+    );
   })
 
-  loadTaskList = action((type) => {
+  loadTaskList = action((type, offset) => {
     return this.asyncAction(
-      agent.MyTask.all(type, this[`${type}_offset`], LIMIT)
+      agent.MyTask.all(type, offset === 0 ? 0 : this[`${type}_offset`], LIMIT)
         .then(action(({ data }) => {
           data.forEach((value) => this[`${type}_task`].set(value._id, value));
-          this[`${type}_offset`] += data.length;
+          this[`${type}_offset`] = offset === 0
+            ? data.length
+            : this[`${type}_offset`] + data.length;
           this[`has_${type}_task_unfetch`] = data.length === 5;
         })),
       type
@@ -58,6 +67,15 @@ export class TaskStore {
 
   dispatchTask = action((task) => {
     return this.asyncAction(agent.Common.dispatch(task), 'origin');
+  })
+
+  deleteTask = action((_id, type) => {
+    this[`${type}_task`].delete(_id);
+    return agent.MyTask.delOne(_id, type)
+      .catch(action(err => {
+        this.loadTaskList(type);
+        throw err;
+      }));
   })
 
   // @action deleteTask(_id) {

@@ -35,10 +35,22 @@ const TaskSchema = new mongoose.Schema({
   },
 })
 
+TaskSchema.statics.findAllIdByUserName = async function(userName) {
+  const dataList = await this.find()
+    .where('i').eq(userName)
+    .select('_id');
+
+  return dataList.map(data => data._id);
+}
+
 TaskSchema.statics.findByUserName = async function(userName, offset, number){
   const dataList = await this.find({ i: userName }).skip(offset).limit(number);
-  
+
   return dataList.map(data => data.toObject());
+}
+
+TaskSchema.statics.deleteByIdAndName = async function (_id, userName) {
+  await this.deleteOne({ _id, i: userName });
 }
 
 if (!TaskSchema.options.toObject) TaskSchema.options.toObject = {};

@@ -1,8 +1,13 @@
 const userNameRegex = /^[0-9A-Za-z\u4e00-\u9fa5]{5,20}$/
 const passwordRegex = /^(?=.*?[0-9])(?=.*?[A-Z])(?=.*?[a-z]).{8,}$/;
-const steps = [
+const STEPS = [
   { title: '标框', },
   { title: '标点', },
+  { title: '完成' }
+];
+const DRAW_STEPS = [
+  { title: '选定大小', },
+  { title: '开始涂鸦', },
   { title: '完成' }
 ];
 const TASK_STATUS = {
@@ -50,7 +55,8 @@ const antithesesPointPos = [
 export {
   userNameRegex,
   passwordRegex,
-  steps,
+  STEPS,
+  DRAW_STEPS,
   TASK_STATUS,
   TASK_KIND,
   antithesesPointPos,

@@ -1,5 +1,5 @@
 import TaskSteps from './TaskSteps';
-import AntithesesSider from './AntithesesSider/index'; 
+import AntithesesSider from './AntithesesSider/index';
 import EditingCard from './EditingCard';
 
 export {

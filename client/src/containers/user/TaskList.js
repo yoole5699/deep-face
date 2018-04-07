@@ -5,12 +5,12 @@ import TaskCard from 'components/user/TaskCard';
 
 class TaskList extends React.Component {
   componentDidMount() {
-    this.loadTaskList();
+    this.loadTaskList(0);
   }
 
-  loadTaskList = () => {
+  loadTaskList = (offset) => {
     const { taskStore, type } = this.props;
-    taskStore.loadTaskList(type);
+    taskStore.loadTaskList(type, offset);
   }
 
   render() {
@@ -42,6 +42,7 @@ class TaskList extends React.Component {
             <Module
               {...item}
               key={item._id}
+              deleteTask={taskStore.deleteTask}
             />
           )
         }}

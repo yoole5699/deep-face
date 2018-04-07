@@ -2,8 +2,7 @@ const router = require('koa-router')();
 const User = require('../models/user');
 const base = require('../models/base');
 const SubTask = require('../models/subtask');
-const Label = require('../models/label');
-const { RESOLVED } = require('../utils/const');
+const { UN_START, RESOLVED } = require('../utils/const');
 
 router.post('/login', async ctx => {
   const { userName, password } = ctx.request.body;
@@ -51,13 +50,18 @@ router.get('/info', async ctx => {
   const subTaskList = await SubTask.find({ s: user.userName });
   let labelImgNum = 0;
   let converedMoneyTotal = 0;
-
-  for (var i = 0; i < subTaskList.length; i++) {
-    const num = await Label.count({ t: subTaskList[i] });
-    labelImgNum += num;
-
-    const fulFilledNum = await Label.count({ t: subTaskList[i], s: RESOLVED });
-    converedMoneyTotal = fulFilledNum * subTaskList[i].money;
+  for (let i = 0; i < subTaskList.length; i++) {
+    let fulFilledNum = 0;
+    console.log(subTaskList[i].labels, '---yoole---');
+    for (let j = 0; j < subTaskList[i].labels.length; j++) {
+      if (subTaskList[i].labels[j].status > UN_START) {
+        labelImgNum += 1;
+        if (subTaskList[i].labels[j].status === RESOLVED) {
+          fulFilledNum++;
+        }
+      }
+    }
+    converedMoneyTotal += fulFilledNum * subTaskList[i].money;
   }
   user.taskTotalNum = subTaskList.length;
   user.labelImgNum = labelImgNum;

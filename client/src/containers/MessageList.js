@@ -10,8 +10,12 @@ class MessageList extends React.Component {
     this.props.userStore.resetCurrentPage();
   }
 
-  componentWillMount() {
-    this.props.userStore.setCurrentPage();
+  componentDidMount() {
+    // TODO服务端主动信息推送
+    const { pullUser, setCurrentPage } = this.props.userStore;
+    pullUser().then(() => {
+      setCurrentPage();
+    });
   }
 
   render() {
@@ -26,6 +30,7 @@ class MessageList extends React.Component {
     return (
       <Main>
         <List
+          loading={userStore.loadingUser}
           locale={{ emptyText: <h4>您暂未收到任何消息~</h4>}}
           dataSource={userStore.currentUser.comments.slice(0, currentShowNum)}
           loadMore={loadMore}
@@ -42,8 +47,6 @@ class MessageList extends React.Component {
                 description={`${item.senderName} ${new Date(item.create_at).toLocaleString()}`}
               />
               <div>
-
-
                 {item.comment}
               </div>
             </List.Item>

@@ -24,7 +24,7 @@ const DispatchTaskForm = ({ form, history, _id, title, desc, imgArray, imgFolder
           ...formData,
           parent: _id,
           expire_time: formData['expire_time'].valueOf(),
-          label: formData.label.map(item => ({ img_name: item })),
+          labels: formData.labels.map(item => ({ img_name: item })),
         }).then(({ success }) => {
           if (success) {
             notification['success']({
@@ -143,7 +143,7 @@ const DispatchTaskForm = ({ form, history, _id, title, desc, imgArray, imgFolder
         {...formItemLayout}
         label="选择图片"
       >
-        {getFieldDecorator('label', {
+        {getFieldDecorator('labels', {
           validateTrigger: 'onBlur',
           initialValue: imgArray.slice(),
           rules: [{ required: true, message: '请至少选择一张图片!' }],

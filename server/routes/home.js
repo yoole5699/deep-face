@@ -1,4 +1,5 @@
 const router = require('koa-router')();
+const fs = require('fs');
 const path = require('path');
 const User = require('../models/user');
 const Task = require('../models/task');
@@ -41,8 +42,8 @@ router.get('mytasks', async ctx => {
       let pendingTaskNum = 0;
       let fulfilledTaskNum = 0;
       for (let j = 0; j < allSubTask.length; j++) {
-        allSubTask[j].label.every(item => item.status === RESOLVED) && fulfilledTaskNum++;
-        allSubTask[j].label.some(item => item.status !== UN_START) && pendingTaskNum++;
+        allSubTask[j].labels.every(item => item.status === RESOLVED) && fulfilledTaskNum++;
+        allSubTask[j].labels.some(item => item.status !== UN_START) && pendingTaskNum++;
       }
       taskList[i].allTaskNum = allSubTask.length;
       taskList[i].pendingTaskNum = pendingTaskNum;
@@ -50,7 +51,8 @@ router.get('mytasks', async ctx => {
     }
   } else {
     if (type === 'dispatch') {
-      taskList = await SubTask.findMyDispatch(name, convertedOffset, convertedNumber);
+      const parentTaskIdList = await Task.findAllIdByUserName(name)
+      taskList = await SubTask.findMyDispatch(parentTaskIdList, convertedOffset, convertedNumber);
     } else {
       taskList = await SubTask.findMyOwn(name, type || 'pending', convertedOffset, convertedNumber);
     }
@@ -83,7 +85,9 @@ router.get('label/file', async ctx => {
   if (isValid) {
     const labelFilePath = path.join(__dirname, '../../public', file_path);
     console.log(labelFilePath, '---labelFilePath---');
-    data = require(labelFilePath);
+    if (fs.existsSync(labelFilePath)) {
+      data = require(labelFilePath);
+    }
   }
 
   ctx.body = {

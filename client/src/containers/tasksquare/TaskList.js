@@ -20,7 +20,7 @@ class TaskList extends React.Component {
 
     return (
       <List
-        grid={{ column: 2 }}
+        grid={{ gutter: 16, column: 2 }}
         loading={isLoading}
         loadMore={hasTaskUnfetch && <LoadMore />}
         locale={{ emptyText: <BlankList /> }}
