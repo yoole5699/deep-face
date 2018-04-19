@@ -27,7 +27,7 @@ const PendingCard = (({
       <div>
         <Tooltip title={desc}>{desc}</Tooltip>
         <br />
-        图片数量: {imgNum}
+        图片数量: {labels.length}
         <br />
         报酬：{money}元/张
         <br />

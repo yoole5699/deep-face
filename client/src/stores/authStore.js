@@ -39,7 +39,7 @@ class AuthStore {
   })
 
   reset = action(() => {
-    this.inProgress = true;
+    this.inProgress = false;
     this.errors = undefined;
   })
 

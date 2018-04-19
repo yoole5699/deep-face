@@ -10,22 +10,37 @@ class PublicSider extends React.Component {
     this.props.taskStore.loadTaskList('pending');
   }
 
+  logout = () => {
+    this.props.history.push('login');
+    this.props.authStore.logout();
+  }
+
   render() {
-    const { userName, desc = '软件学院·好孩子' } = this.props.userStore.currentUser || {};
-    const { location } = this.props;
+    const { location, userStore } = this.props;
+    const { userName, desc = '软件学院·好孩子' } = userStore.currentUser || {};
 
     if (location.pathname === '/person-center') {
       return (
         <div style={{ padding: '44px 20px 0', textAlign: 'center' }}>
-          <LgAvatar large src={HEAD} alt="头像" />
+          <LgAvatar />
           <h2 style={{ color: 'white', fontSize: 28, marginTop: 20 }}>{userName}</h2>
           <div style={{ color: 'rgb(152, 154, 158)' }}>{desc}</div>
             <Button
               size="large"
-              style={{ marginTop: 60, width: 170 }}
+              style={{
+                marginTop: 60,
+                marginBottom: 30,
+                width: 170
+              }}
             >
               <Link to="/task?type=create">发布任务</Link>
             </Button>
+            <Button
+              size="large"
+              type="danger"
+              style={{ width: 170 }}
+              onClick={this.logout}
+            >退出登录</Button>
         </div>
       )
     }
@@ -61,4 +76,4 @@ class PublicSider extends React.Component {
   }
 }
 
-export default inject('userStore', 'taskStore')(observer(PublicSider));
+export default inject('userStore', 'taskStore', 'authStore')(observer(PublicSider));

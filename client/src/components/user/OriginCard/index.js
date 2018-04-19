@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { TransitionMotion, spring, presets } from 'react-motion';
 import { Button, notification } from 'antd';
 import {
   Avatar,
@@ -11,8 +12,11 @@ import {
   CountOutArea,
 } from '../CardLayout';
 import FullButton from 'components/common/FullButton';
-import Table from './Table';
+import { TableLayout, THead, TRow } from './Table';
 import agent from 'utils/agent';
+
+const willLeave = () => ({ height: spring(0), opacity: spring(0) });
+const willEnter = () => ({ height: spring(0), opacity: spring(1) });
 
 class OriginCard extends React.Component {
   state = {
@@ -48,8 +52,65 @@ class OriginCard extends React.Component {
     });
     this.props.deleteTask(_id, 'dispatch')
       .catch((err) => {
-        notification.error({ message: '删除失败', description: err });
+        notification.error({ message: '删除失败', description: err.message });
       })
+  }
+
+  getDefaultStyles = () => (
+    this.state.tasks
+      .map(
+        item => ({
+          key: item._id,
+          data: {
+            ...item,
+          },
+          style: {
+            height: 0,
+            opacity: 1
+          }
+        })
+      )
+  )
+
+  getStyles = () => (
+    this.state.tasks
+      .map(
+        (item, i) => ({
+          key: item._id,
+          data: {
+            ...item,
+          },
+          style: {
+            height: spring(30, presets.gentle),
+            opacity: spring(1, presets.gentle),
+          }
+        })
+      )
+  )
+
+  renderTable = () => {
+    return (
+      <TransitionMotion
+        defaultStyles={this.getDefaultStyles()}
+        styles={this.getStyles()}
+        willLeave={willLeave}
+        willEnter={willEnter}>
+        {styles =>
+          <TableLayout>
+            <THead />
+            {
+              styles.map((props) => (
+                  <TRow
+                    {...props}
+                    deleteRow={this.handleDelete}
+                  />
+                )
+              )
+            }
+          </TableLayout>
+        }
+      </TransitionMotion>
+    )
   }
 
   render() {
@@ -110,11 +171,7 @@ class OriginCard extends React.Component {
           </div>
         </CountOutArea>
         {
-          this.state.actived
-          && <Table
-               dataSource={this.state.tasks}
-               deleteRow={this.handleDelete}
-             />
+          this.state.actived && this.renderTable()
         }
       </Layout>
     )

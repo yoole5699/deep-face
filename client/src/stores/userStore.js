@@ -1,5 +1,6 @@
-import { extendObservable, action } from 'mobx';
+import { extendObservable, action, when } from 'mobx';
 import agent from 'utils/agent';
+import io from 'socket.io-client';
 
 class UserStore {
 
@@ -12,6 +13,26 @@ class UserStore {
 
       currentPage: 0,
     });
+
+    when(
+      () => !!this.currentUser,
+      () => {
+        const ins = io('http://localhost:3002');
+
+        ins.on('news', function (data) {
+          console.log(data);
+          // 发送事件到服务端
+          // socket.emit('my other event', { my: 'data' });
+        });
+
+        ins.on('connection', (socket) => {
+          console.log('a user client connected');
+          socket.on('disconnect', function(){
+            console.log('user client disconnected');
+          });
+        })
+      }
+    )
   }
 
   pullUser = action(() => {

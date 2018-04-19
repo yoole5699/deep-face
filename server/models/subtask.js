@@ -142,7 +142,7 @@ SubTaskSchema.statics.deleteByIdAndName = async function (_id, userName) {
   let rawRes = await this.deleteOne({ _id, s: userName });
   if (rawRes.n === 0) {
     const task = await this.findOne({ _id }).populate('p');
-    rawRes = task.initialtorName === userName ? await this.deleteOne({ _id }) : rawRes;
+    rawRes = task.toObject().initialtorName === userName ? await this.deleteOne({ _id }) : rawRes;
   }
 
   return rawRes;

@@ -14,7 +14,6 @@ const FulfilledCard = (({
   labels,
   title,
   desc,
-  imgNum,
   money,
   expireTime,
   _id
@@ -26,7 +25,7 @@ const FulfilledCard = (({
       <div>
         <Tooltip title={desc}>{desc}</Tooltip>
         <br />
-        图片数量: {imgNum}
+        图片数量: {labels.length}
         <br />
         报酬：{money}元/张
         <br />

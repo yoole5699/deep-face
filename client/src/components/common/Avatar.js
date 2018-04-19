@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { Badge, Dropdown, Menu } from 'antd';
+import { Badge, Dropdown, Menu, Modal } from 'antd';
 import { inject, observer } from 'mobx-react';
 import HEAD from '../../resource/image/avatar.png';
 import { logout } from '../../utils/agent';
@@ -20,18 +20,72 @@ const MdAvatar = Avatar.extend`
   height: 60px;
 `
 
-const LgAvatar = Avatar.extend`
+const LgAvatarLayout = Avatar.extend`
   width: 130px;
   height: 130px;
-`
+  cursor: pointer;
+  opacity: ${({ actived }) => actived ? 0.7 : 1};
+`;
+
+class LgAvatar extends React.Component {
+  state = {
+    actived: false,
+    modalVisible: false
+  }
+
+  mounseEnterHandler = () => {
+    this.setState({
+      actived: true
+    });
+  }
+
+  mouseLeaveHandler = () => {
+    this.setState({
+      actived: false
+    });
+  }
+
+  toggleModal = () => {
+    this.setState({
+      modalVisible: !this.state.modalVisible
+    });
+  }
+
+  render() {
+    return (
+      <div
+        onMouseEnter={this.mounseEnterHandler}
+        onMouseLeave={this.mouseLeaveHandler}
+        onClick={this.toggleModal}
+      >
+        <LgAvatarLayout
+          alt="头像"
+          src={HEAD}
+          actived={this.state.actived}
+        />
+        <Modal
+          title="编辑个人信息"
+          style={{ overflow: 'hidden' }}
+          visible={this.state.modalVisible}
+          onOk={this.toggleModal}
+          onCancel={this.toggleModal}
+        >
+          <p>some contents...</p>
+          <p>some contents...</p>
+          <p>some contents...</p>
+        </Modal>
+      </div>
+    )
+  }
+}
 
 const menu = (
   <Menu>
     <Menu.Item>
-      <Link to="/person-center">个人中心</Link>
+      <Link to="/person-center">个人成就</Link>
     </Menu.Item>
     <Menu.Item>
-      <Link to="/message-list">消息列表</Link>
+      <Link to="/message-list">我的主页</Link>
     </Menu.Item>
     <Menu.Item>
       <a onClick={logout}>登出</a>

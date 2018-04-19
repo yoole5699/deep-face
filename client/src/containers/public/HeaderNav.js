@@ -17,8 +17,8 @@ const HeaderNav = withRouter(({ location, children }) => (
       >
         <Item key="/"><Link to="/">任务广场</Link></Item>
         <Item key="/task-center"><Link to="/task-center">资源管理</Link></Item>
-        <Item key="/person-center"><Link to="/person-center">个人中心</Link></Item>
-        <Item key="/message-list"><Link to="/message-list">消息列表</Link></Item>
+        <Item key="/person-center"><Link to="/person-center">个人成就</Link></Item>
+        <Item key="/message-list"><Link to="/message-list">我的主页</Link></Item>
       </Menu>
     </Col>
     <SearchInput />

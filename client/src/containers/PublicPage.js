@@ -17,7 +17,7 @@ import MessageList from './MessageList';
 
 const { Header, Sider, Content } = Layout;
 
-const PublicPage = ({ location, userStore }) => (
+const PublicPage = ({ history, location, userStore }) => (
   <Layout>
     <Layout style={{ marginRight: '20px' }}>
       <Header>
@@ -98,7 +98,10 @@ const PublicPage = ({ location, userStore }) => (
       </Content>
     </Layout>
     <Sider width={240}>
-      <PublicSider location={location} />
+      <PublicSider
+        history={history}
+        location={location}
+      />
     </Sider>
   </Layout>
 )

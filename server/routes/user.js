@@ -52,7 +52,6 @@ router.get('/info', async ctx => {
   let converedMoneyTotal = 0;
   for (let i = 0; i < subTaskList.length; i++) {
     let fulFilledNum = 0;
-    console.log(subTaskList[i].labels, '---yoole---');
     for (let j = 0; j < subTaskList[i].labels.length; j++) {
       if (subTaskList[i].labels[j].status > UN_START) {
         labelImgNum += 1;
@@ -65,7 +64,7 @@ router.get('/info', async ctx => {
   }
   user.taskTotalNum = subTaskList.length;
   user.labelImgNum = labelImgNum;
-  user.converedMoneyTotal = converedMoneyTotal;
+  user.converedMoneyTotal = converedMoneyTotal.toFixed(1);
 
   ctx.body = {
     code: 200,

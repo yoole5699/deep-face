@@ -17,7 +17,7 @@ class TaskList extends React.Component {
     const { taskStore, type } = this.props;
 
     const {
-      [`is_${type}_loding`]: isLoading,
+      [`is_${type}_loading`]: isLoading,
       [`${type}_task_list`]: taskList,
       [`has_${type}_task_unfetch`]: hasTaskUnfetch,
     } = taskStore;
