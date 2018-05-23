@@ -45,11 +45,11 @@ class CommonStore {
 
   loadPubTasks = action(() => {
     this.asyncAction(
-      agent.Common.all(this.offset, 5)
+      agent.Common.all(this.offset, 10)
         .then(action(({ data }) => {
           this.pubTasks = this.pubTasks.concat(data);
           this.offset += data.length;
-          this.hasTaskUnfetch = data.length === 5;
+          this.hasTaskUnfetch = data.length === 10;
         }))
     )
   })
